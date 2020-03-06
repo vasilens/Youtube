@@ -16,14 +16,14 @@ require_once "navigation.php";
         echo $video["date_uploaded"] . "<br>";
         echo "Views: " . $video['views'] . "<br>";
         echo $video["name"] . "<br>";
-        echo "<a href='index.php?target=user&action=getById&id=" . $video["user_id"] . "'>" . $video["username"] . "</a><br>";
+        echo "<a href='?target=user&action=getById&id=" . $video["user_id"] . "'>" . $video["username"] . "</a><br>";
         if(isset($_SESSION['logged_user'])){
         echo "<button id='showPlaylists' onclick='showMyPlaylists(". $user_id." ,". $video_id .")'>Add to playlist</button>";
         echo "<table id='playlist-holder'></table>";
         }
         if ($video["owner_id"] == $user_id){
-            echo "<a href='index.php?target=video&action=loadEdit&id=" . $video["id"] . "'><button>Edit video</button></a><br>";
-            echo "<a href='index.php?target=video&action=delete&id=" . $video["id"] . "'><button>Delete video</button></a><br>";
+            echo "<a href='?target=video&action=loadEdit&id=" . $video["id"] . "'><button>Edit video</button></a><br>";
+            echo "<a href='?target=video&action=delete&id=" . $video["id"] . "'><button>Delete video</button></a><br>";
         }
         else {
             if ($user_id) {
@@ -38,7 +38,7 @@ require_once "navigation.php";
         echo $video["description"] . "<br>";
     }
     else {
-        header("Location:index.php");
+        ("Location:/");
     }
     ?>
     </p>
@@ -53,7 +53,7 @@ require_once "navigation.php";
     if(isset($user_id) && !empty($user_id)){
         ?>
     Write comment:
-    <form method="post" action="index.php?target=comment&action=add">
+    <form method="post" action="?target=comment&action=add">
         <input type="hidden" id="video_id" name="video_id" value="<?= $video["id"]; ?>" required>
         <input type="hidden" id="owner_id" name="owner_id" value="<?= $user_id; ?>" required>
         <textarea rows="5" cols="50" id="content" name="content" required></textarea><br>

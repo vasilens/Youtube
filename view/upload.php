@@ -1,16 +1,16 @@
 <?php
 if (!isset($_SESSION["logged_user"])) {
-    header("Location:index.php");
+    header("Location:/");
 }
 $user_id = $_SESSION["logged_user"]["id"];
 if (!isset($categories)){
-    header("Location:index.php");
+    header("Location:/");
 }
 require_once "header.php";
 require_once "navigation.php";
 ?>
-<!--<button><a href="index.php">Home</a></button>-->
-<form action="index.php?target=video&action=upload" method="post" enctype="multipart/form-data">
+<!--<button><a href="">Home</a></button>-->
+<form action="?target=video&action=upload" method="post" enctype="multipart/form-data">
     <table>
         <tr>
             <td><label for="title"><b>Title:</b></label></td>

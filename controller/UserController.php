@@ -33,7 +33,7 @@ class UserController {
                 $user['full_name'] = $user['name'];
                 unset($user["password"]);
                 $_SESSION['logged_user'] = $user;
-                header("Location:index.php");
+                header("Location:/");
                 echo "Successful login! <br>";
                 return;
             }
@@ -231,7 +231,7 @@ class UserController {
     public function logout(){
         unset($_SESSION);
         session_destroy();
-        header("Location:index.php?target=view&action=viewRouter&view=login");
+        header("Location:?target=view&action=viewRouter&view=login");
         exit;
     }
 

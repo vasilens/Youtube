@@ -21,22 +21,22 @@ if(isset($_SESSION['logged_user'])){
 </head>
 <body>
 <header>
-    <a href="index.php?target=video&action=getAll"><img class="youtubeLogo" src="styles/images/youtube_PNG5.png" alt="youtube logo"></a>
-    <form id="searchForm" action="index.php?target=search&action=search" method="post">
+    <a href="?target=video&action=getAll"><img class="youtubeLogo" src="styles/images/youtube_PNG5.png" alt="youtube logo"></a>
+    <form id="searchForm" action="?target=search&action=search" method="post">
         <input style="width: 50%;height: 29px;"  type="text" placeholder="Search" name="search_query">
         <input  type="submit" name="search" value="Search">
     </form>
     <?php
     if (isset($user_id) && !empty($user_id)){
         ?>
-        <a href="index.php?target=view&action=viewRouter&view=upload"><button class="headerButtons">Upload video</button></a>
-        <a href="index.php?target=user&action=getById&id=<?= $user_id; ?>"><button class="headerButtons">View profile</button></a>
-        <a href="index.php?target=user&action=logout"><button class="headerButtons">Logout</button></a>
+        <a href="?target=view&action=viewRouter&view=upload"><button class="headerButtons">Upload video</button></a>
+        <a href="?target=user&action=getById&id=<?= $user_id; ?>"><button class="headerButtons">View profile</button></a>
+        <a href="?target=user&action=logout"><button class="headerButtons">Logout</button></a>
         <?php
     }
     else {
         ?>
-        <a href="index.php?target=view&action=viewRouter&view=login"><button class="headerButtons">Login</button></a>
+        <a href="?target=view&action=viewRouter&view=login"><button class="headerButtons">Login</button></a>
         <?php
     }
     ?>

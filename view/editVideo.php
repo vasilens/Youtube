@@ -1,15 +1,15 @@
 <?php
 if (!isset($_SESSION["logged_user"]["id"])) {
-    header("Location:index.php");
+    header("Location:/");
 }
 $user_id = $_SESSION["logged_user"]["id"];
 if (!isset($video) || !isset($categories)){
-    header("Location:index.php");
+    header("Location:/");
 }
 require_once "header.php";
 require_once "navigation.php";
 ?>
-<form action="index.php?target=video&action=edit" method="post" enctype="multipart/form-data">
+<form action="?target=video&action=edit" method="post" enctype="multipart/form-data">
     <table>
         <input type="hidden" name="id" value="<?= $video["id"]; ?>"
         <tr>
