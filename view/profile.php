@@ -14,7 +14,7 @@ if (isset($user)) {
     echo "Name: " . $user["name"] . "<br>";
     echo "Registered on: " . $user["registration_date"] . "<br>";
     if ($user["id"] == $user_id){
-        echo "<a href='index.php?target=view&action=viewRouter&view=editProfile'><button>Edit profile</button></a><br>";
+        echo "<a href='?target=view&action=viewRouter&view=editProfile'><button>Edit profile</button></a><br>";
     }
     elseif ($user_id) {
         if ($user["isFollowed"]) {
@@ -27,7 +27,7 @@ if (isset($user)) {
     echo "<h3>Videos:</h3>";
 }
 else {
-    header("Location:index.php");
+    header("Location:");
 }
 if (isset($videos)) {
     if ($videos) {
@@ -36,7 +36,7 @@ if (isset($videos)) {
             if (!$video["thumbnail_url"]) {
                 $video["thumbnail_url"] = 'https://therisingnetwork.com/wp-content/plugins/video-thumbnails/default.jpg';
             }
-            echo "<tr><td><a href='index.php?target=video&action=getById&id=" . $video["id"] . "'><img width='200px' src='";
+            echo "<tr><td><a href='?target=video&action=getById&id=" . $video["id"] . "'><img width='200px' src='";
             echo $video["thumbnail_url"];
             echo "'></a></td></tr>";
             echo "<tr><td><b>";
