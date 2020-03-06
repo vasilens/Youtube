@@ -9,7 +9,6 @@ require_once "header.php";
 require_once "navigation.php";
 
 if (isset($user)) {
-    header("Location:/");
     echo "<img width=100px src='" . $user["avatar_url"] . "'>";
     echo $user["username"] . "<br>";
     echo "Name: " . $user["name"] . "<br>";
