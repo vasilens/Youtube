@@ -1,6 +1,6 @@
 <?php
 if (!isset($_SESSION["logged_user"])){
-    header("Location:");
+    header("Location:/");
 }
 $user_id = $_SESSION["logged_user"]["id"];
 require_once "header.php";

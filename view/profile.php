@@ -9,6 +9,7 @@ require_once "header.php";
 require_once "navigation.php";
 
 if (isset($user)) {
+    header("Location:/");
     echo "<img width=100px src='" . $user["avatar_url"] . "'>";
     echo $user["username"] . "<br>";
     echo "Name: " . $user["name"] . "<br>";
@@ -27,7 +28,7 @@ if (isset($user)) {
     echo "<h3>Videos:</h3>";
 }
 else {
-    header("Location:");
+    header("Location:/");
 }
 if (isset($videos)) {
     if ($videos) {

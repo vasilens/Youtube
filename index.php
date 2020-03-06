@@ -73,7 +73,7 @@ else {
     $fileNotFoundFlag = true;
 }
 if ($fileNotFoundFlag === true){
-    header("Location:?target=video&action=getAll");
+    header("Location:/?target=video&action=getAll");
 }
 ?>
 <!doctype html>

@@ -1,10 +1,10 @@
 <?php
 if (!isset($_SESSION["logged_user"]["id"])) {
-    header("Location:");
+    header("Location:/");
 }
 $user_id = $_SESSION["logged_user"]["id"];
 if (!isset($video) || !isset($categories)){
-    header("Location:");
+    header("Location:/");
 }
 require_once "header.php";
 require_once "navigation.php";

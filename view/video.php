@@ -38,7 +38,7 @@ require_once "navigation.php";
         echo $video["description"] . "<br>";
     }
     else {
-        header("Location:");
+        ("Location:/");
     }
     ?>
     </p>
