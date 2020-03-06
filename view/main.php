@@ -18,7 +18,7 @@ if (isset($orderby)){
     if (isset($videos)) {
         if($videos){
         foreach ($videos as $video) {
-            echo "<tr><td colspan='2'><a href='index.php?target=video&action=getById&id=" . $video["id"] . "'><img width='200px' src='";
+            echo "<tr><td colspan='2'><a href='?target=video&action=getById&id=" . $video["id"] . "'><img width='200px' src='";
             if (!$video["thumbnail_url"]){
                 $video["thumbnail_url"] = 'https://therisingnetwork.com/wp-content/plugins/video-thumbnails/default.jpg';
             }
@@ -45,7 +45,7 @@ if (isset($orderby)){
     if(isset($playlists)){
         if($playlists){
             foreach ($playlists as $playlist){
-                echo "<tr><td><a style='text-decoration: none' href='index.php?target=playlist&action=clickedPlaylist&id=" .
+                echo "<tr><td><a style='text-decoration: none' href='?target=playlist&action=clickedPlaylist&id=" .
                     $playlist["id"] ."'><b>" . $playlist["playlist_title"]. "</b></a></td></tr>" . "<br>";
                 echo "<tr><td>";
                 echo $playlist["date_created"]. "<br>";
@@ -62,7 +62,7 @@ if (isset($orderby)){
                 echo "<tr><td><img style='border-radius: 50%;' alt='No photo' width='100px' src='";
                 echo $user['avatar_url'];
                 echo "'></td>";
-                echo "<td><b><a href='index.php?target=user&action=getById&id=" . $user["id"] . "'>" . $user['username'];
+                echo "<td><b><a href='?target=user&action=getById&id=" . $user["id"] . "'>" . $user['username'];
                 echo "</b></td></tr></a>";
                 echo "<tr><td>Joined on: ";
                 echo $user['registration_date'];

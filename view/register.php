@@ -24,11 +24,11 @@ if(isset($msg)){
     <div class="col-md-6">
         <div class="card">
             <header class="card-header">
-                <a href="index.php?target=view&action=viewRouter&view=login" class="float-right btn btn-outline-primary mt-1">Log in</a>
+                <a href="?target=view&action=viewRouter&view=login" class="float-right btn btn-outline-primary mt-1">Log in</a>
                 <h4 class="card-title mt-2">Sign up</h4>
             </header>
             <article class="card-body">
-                <form action="index.php?target=user&action=register" method="post" enctype="multipart/form-data">
+                <form action="?target=user&action=register" method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label>Username</label>
                         <input type="text" name="username" class="form-control" placeholder="" required>
@@ -60,7 +60,7 @@ if(isset($msg)){
                     <small class="text-muted">By clicking the 'Sign Up' button, you confirm that you accept our <br> Terms of use and Privacy Policy.</small>
                 </form>
             </article>
-            <div class="border-top card-body text-center">Already have an account? <a href="index.php?target=view&action=viewRouter&view=login">Log In</a></div>
+            <div class="border-top card-body text-center">Already have an account? <a href="?target=view&action=viewRouter&view=login">Log In</a></div>
         </div>
     </div>
 </div>
