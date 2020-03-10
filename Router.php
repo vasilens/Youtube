@@ -39,31 +39,16 @@ class Router
             }
 
         }
-        if ($flag == false && $arrayUri === $arrayRoute && $arrayUri[1] == 'view') {
-            $class = explode('@', $classAndMethod);
-            $className = '\\controller\\' . ucfirst($class[0]);
-            $method = $class[1];
-            $controller = new $className;
-//            var_dump($controller);
-            $controller->$method($arrayUri[2]);
-            die;
-        }
         if ($flag == false && $arrayUri === $arrayRoute) {
             $class = explode('@', $classAndMethod);
             $className = '\\controller\\' . ucfirst($class[0]);
             $method = $class[1];
             $controller = new $className;
-//            var_dump($controller);
-//            var_dump($arrayUri);
-            $controller->$method();
+            $arrayUri[1] == 'view' ?   $controller->$method($arrayUri[2]) :  $controller->$method();
             die;
         }
         if ($flag == true) {
             $arrayRoute[$intPlace] = $arrayUri[$intPlace];
-//            echo "URI";
-//            var_dump($arrayUri);
-//            echo "ROUTE";
-//            var_dump($arrayRoute);
             if ($arrayRoute === $arrayUri) {
                 $class = explode('@', $classAndMethod);
                 $className = '\\controller\\' . ucfirst($class[0]);
