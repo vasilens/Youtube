@@ -19,7 +19,7 @@ if(isset($msg)){
 <?php
 }
 ?>
-<form action="?target=user&action=login" method="post">
+<form action="/user/login" method="post">
     <div class="wrapper fadeInDown">
         <div id="formContent">
             <div class="fadeIn first">

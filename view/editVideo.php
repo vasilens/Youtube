@@ -9,7 +9,7 @@ if (!isset($video) || !isset($categories)){
 require_once "header.php";
 require_once "navigation.php";
 ?>
-<form action="?target=video&action=edit" method="post" enctype="multipart/form-data">
+<form action="/video/edit" method="post" enctype="multipart/form-data">
     <table>
         <input type="hidden" name="id" value="<?= $video["id"]; ?>"
         <tr>

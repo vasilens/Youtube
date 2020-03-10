@@ -16,7 +16,7 @@ require_once "navigation.php";
         echo $video["date_uploaded"] . "<br>";
         echo "Views: " . $video['views'] . "<br>";
         echo $video["name"] . "<br>";
-        echo "<a href='?target=user&action=getById&id=" . $video["user_id"] . "'>" . $video["username"] . "</a><br>";
+        echo "<a href='/user/'" . $video["user_id"] . "'>" . $video["username"] . "</a><br>";
         if(isset($_SESSION['logged_user'])){
         echo "<button id='showPlaylists' onclick='showMyPlaylists(". $user_id." ,". $video_id .")'>Add to playlist</button>";
         echo "<table id='playlist-holder'></table>";
