@@ -18,7 +18,7 @@ if (isset($orderby)){
     if (isset($videos)) {
         if($videos){
         foreach ($videos as $video) {
-            echo "<tr><td colspan='2'><a href='?target=video&action=getById&id=" . $video["id"] . "'><img width='200px' src='";
+            echo "<tr><td colspan='2'><a href=/video/" . $video["id"] . "><img width='200px' src='";
             if (!$video["thumbnail_url"]){
                 $video["thumbnail_url"] = 'https://therisingnetwork.com/wp-content/plugins/video-thumbnails/default.jpg';
             }
@@ -45,7 +45,7 @@ if (isset($orderby)){
     if(isset($playlists)){
         if($playlists){
             foreach ($playlists as $playlist){
-                echo "<tr><td><a style='text-decoration: none' href='?target=playlist&action=clickedPlaylist&id=" .
+                echo "<tr><td>";echo "<a href='/playlist/{id}" .
                     $playlist["id"] ."'><b>" . $playlist["playlist_title"]. "</b></a></td></tr>" . "<br>";
                 echo "<tr><td>";
                 echo $playlist["date_created"]. "<br>";

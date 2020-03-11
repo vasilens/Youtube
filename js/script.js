@@ -156,6 +156,8 @@ function unfollowUser(user_id) {
 }
 
 function showMyPlaylists(user_id, video_id){
+
+    let data = {"user_id" : user_id};
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if(this.readyState == 4 && this.status == 200){
@@ -175,8 +177,9 @@ function showMyPlaylists(user_id, video_id){
             //     video_id+")'>Save</button>"
         }
     };
-    xhttp.open("GET", "?target=playlist&action=getMyPlaylistsJSON&owner_id=" + user_id, true);
-    xhttp.send();
+    xhttp.open("POST", "?target=playlist&action=getMyPlaylistsJSON&owner_id=" + user_id, true);
+    xhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    xhttp.send(data);
 }
 
 function addToPlaylist(playlist_id, video_id){
