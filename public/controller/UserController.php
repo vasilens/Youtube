@@ -231,7 +231,7 @@ class UserController {
     public function logout(){
         unset($_SESSION);
         session_destroy();
-        header("Location:?target=view&action=viewRouter&view=login");
+        header("Location:/");
         exit;
     }
 

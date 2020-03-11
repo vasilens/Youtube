@@ -1,3 +1,4 @@
-config.php
-.idea/
-/uploads
+.env
+.idea
+volumes
+vendor

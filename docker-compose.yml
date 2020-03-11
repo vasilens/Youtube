@@ -1,0 +1,52 @@
+version: '2'
+
+services:
+    web-dev:
+        image: ${COMPOSE_PROJECT_NAME}-web-dev:${APP_VERSION}
+        build: ./devops/nginx/dev
+        ports:
+            - ${NGINX_HOST_PORT}:80
+        volumes:
+            - ./volumes/nginx/logs:/var/log/nginx/
+        volumes_from:
+            - php-dev:ro
+        depends_on:
+            - php-dev
+    php-base:
+        image: ${COMPOSE_PROJECT_NAME}-php-base:${APP_VERSION}
+        build:
+            context: devops/php-fpm/base
+    php-dev:
+        image: ${COMPOSE_PROJECT_NAME}-php-dev:${APP_VERSION}
+        build:
+            context: devops/php-fpm/dev
+            args:
+                BASE_IMAGE: ${COMPOSE_PROJECT_NAME}-php-base:${APP_VERSION}
+                USER_ID: ${USER_ID}
+                GROUP_ID: ${GROUP_ID}
+        volumes:
+            - ./:/var/www/app/
+            - ${HOME}/.gitconfig:/home/www-data/.gitconfig
+            - ${HOME}/.git-credentials:/home/www-data/.git-credentials
+            - ${HOME}/.ssh:/home/www-data/.ssh
+            - composer_cache:/.composer/cache/
+    db-dev:
+        image: ${COMPOSE_PROJECT_NAME}-db-dev:${APP_VERSION}
+        build:
+            context: devops/mysql/dev
+            args:
+                MYSQL_VERSION: ${MYSQL_VERSION}
+        volumes:
+            - db:/var/lib/mysql/
+            - ./devops/mysql/init/initial_setup.sql:/docker-entrypoint-initdb.d/initial_setup.sql
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        ports:
+            - ${MYSQL_HOST_PORT}:3306
+
+volumes:
+    db:
+    composer_cache:

@@ -9,7 +9,6 @@ if (!isset($categories)){
 require_once "header.php";
 require_once "navigation.php";
 ?>
-<!--<button><a href="">Home</a></button>-->
 <form action="?target=video&action=upload" method="post" enctype="multipart/form-data">
     <table>
         <tr>
