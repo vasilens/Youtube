@@ -17,43 +17,44 @@ class Router
     }
 
     /**
-     * @param $route
-     * @param $classAndMethod
+     * @param string $route
+     * @param string $classAndMethod
+     *
+     * @return mixed
      */
     public function route($route, $classAndMethod)
     {
-        $flag = false;
+        $dynamicRoute = preg_match('/\d+/', $this->uri);
         $intPlace = null;
         $arrayRoute = explode('/', $route);
         $arrayUri = explode('/', $this->uri);
-        if (preg_match_all('/\d+/', $this->uri))
-        {
-            foreach ($arrayUri as $key => $value) {
-                if (is_numeric($value)) {
-                    $flag = true;
-                    $intPlace = $key;
-                    break;
+        switch ($dynamicRoute) {
+            case 1:
+                foreach ($arrayUri as $key => $value) {
+                    if (is_numeric($value)) {
+                        $intPlace = $key;
+                        break;
+                    }
                 }
-            }
-        }
-        if ($flag == false && $arrayUri === $arrayRoute) {
-            $classAndMethodArray = explode('@', $classAndMethod);
-            $className = '\\controller\\' . ucfirst($classAndMethodArray[0]);
-            $method = $classAndMethodArray[1];
-            $controller = new $className;
-            $arrayUri[1] == 'view' ?   $controller->$method($arrayUri[2]) :  $controller->$method();
-            die;
-        }
-        if ($flag == true) {
-            $arrayRoute[$intPlace] = $arrayUri[$intPlace];
-            if ($arrayRoute === $arrayUri) {
-                $class = explode('@', $classAndMethod);
-                $className = '\\controller\\' . ucfirst($class[0]);
-                $method = $class[1];
-                $controller = new $className;
-                $controller->$method();
-                die;
-            }
+                $arrayRoute[$intPlace] = $arrayUri[$intPlace];
+                if ($arrayRoute === $arrayUri) {
+                    $class = explode('@', $classAndMethod);
+                    $className = '\\controller\\' . ucfirst($class[0]);
+                    $method = $class[1];
+                    $controller = new $className;
+                    $controller->$method();
+                    die;
+                }
+                break;
+            case 0:
+                if ($arrayRoute === $arrayUri) {
+                    $classAndMethodArray = explode('@', $classAndMethod);
+                    $className = '\\controller\\' . ucfirst($classAndMethodArray[0]);
+                    $method = $classAndMethodArray[1];
+                    $controller = new $className;
+                    $arrayUri[1] == 'view' ? $controller->$method($arrayUri[2]) : $controller->$method();
+                    die;
+                }
         }
     }
 }
