@@ -6,6 +6,13 @@ use exceptions\InvalidArgumentException;
 
 class Router
 {
+    const REGEX = '/\d+/';
+    const URI_DELIMITER = '/';
+    const WILDCARD = '{id}';
+    const URI_GLUE = '/';
+    const CLASS_AND_METHOD_DELIMITER = '@';
+    const CONTROLLER_NAME = '\\controller\\';
+    const VIEW_ROUTER = 'view';
     /**
      * @var string
      */
@@ -24,35 +31,33 @@ class Router
      */
     public function route($route, $classAndMethod)
     {
-        $dynamicRoute = preg_match('/\d+/', $this->uri);
-        $intPlace = null;
-        $arrayRoute = explode('/', $route);
-        $arrayUri = explode('/', $this->uri);
+        $dynamicRoute = preg_match(self::REGEX, $this->uri);
+        $arrayUri = explode(self::URI_DELIMITER, $this->uri);
+
         switch ($dynamicRoute) {
-            case 1:
+            case true:
                 foreach ($arrayUri as $key => $value) {
                     if (is_numeric($value)) {
-                        $intPlace = $key;
-                        break;
+                        $arrayUri[$key] = self::WILDCARD;
                     }
                 }
-                $arrayRoute[$intPlace] = $arrayUri[$intPlace];
-                if ($arrayRoute === $arrayUri) {
-                    $class = explode('@', $classAndMethod);
-                    $className = '\\controller\\' . ucfirst($class[0]);
-                    $method = $class[1];
+                $uri = implode(self::URI_GLUE, $arrayUri);
+                if ($route === $uri) {
+                    $classAndMethodArray = explode(self::CLASS_AND_METHOD_DELIMITER, $classAndMethod);
+                    $className = self::CONTROLLER_NAME . ucfirst($classAndMethodArray[0]);
+                    $method = $classAndMethodArray[1];
                     $controller = new $className;
                     $controller->$method();
                     die;
                 }
                 break;
-            case 0:
-                if ($arrayRoute === $arrayUri) {
-                    $classAndMethodArray = explode('@', $classAndMethod);
-                    $className = '\\controller\\' . ucfirst($classAndMethodArray[0]);
+            case false:
+                if ($route === $this->uri) {
+                    $classAndMethodArray = explode(self::CLASS_AND_METHOD_DELIMITER, $classAndMethod);
+                    $className = self::CONTROLLER_NAME . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
                     $controller = new $className;
-                    $arrayUri[1] == 'view' ? $controller->$method($arrayUri[2]) : $controller->$method();
+                    $arrayUri[1] == self::VIEW_ROUTER ? $controller->$method($arrayUri[2]) : $controller->$method();
                     die;
                 }
         }
