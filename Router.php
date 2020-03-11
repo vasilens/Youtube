@@ -9,9 +9,8 @@ class Router
     const REGEX = '/\d+/';
     const URI_DELIMITER = '/';
     const WILDCARD = '{id}';
-    const URI_GLUE = '/';
     const CLASS_AND_METHOD_DELIMITER = '@';
-    const CONTROLLER_NAME = '\\controller\\';
+    const CONTROLLER_DIR = '\\controller\\';
     const VIEW_ROUTER = 'view';
     /**
      * @var string
@@ -41,10 +40,10 @@ class Router
                         $arrayUri[$key] = self::WILDCARD;
                     }
                 }
-                $uri = implode(self::URI_GLUE, $arrayUri);
+                $uri = implode(self::URI_DELIMITER, $arrayUri);
                 if ($route === $uri) {
                     $classAndMethodArray = explode(self::CLASS_AND_METHOD_DELIMITER, $classAndMethod);
-                    $className = self::CONTROLLER_NAME . ucfirst($classAndMethodArray[0]);
+                    $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
                     $controller = new $className;
                     $controller->$method();
@@ -54,7 +53,7 @@ class Router
             case false:
                 if ($route === $this->uri) {
                     $classAndMethodArray = explode(self::CLASS_AND_METHOD_DELIMITER, $classAndMethod);
-                    $className = self::CONTROLLER_NAME . ucfirst($classAndMethodArray[0]);
+                    $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
                     $controller = new $className;
                     $arrayUri[1] == self::VIEW_ROUTER ? $controller->$method($arrayUri[2]) : $controller->$method();

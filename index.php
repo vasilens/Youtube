@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 
 spl_autoload_register(function ($class){
     $class = str_replace("\\", DIRECTORY_SEPARATOR, $class) . ".php";
-    require_once  $class;
+    require_once $class;
 });
 
 session_start();
@@ -27,4 +27,3 @@ function handleExceptions(Exception $exception){
     echo $html;
 }
 set_exception_handler("handleExceptions");
-?>

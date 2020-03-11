@@ -22,8 +22,8 @@ require_once "navigation.php";
         echo "<table id='playlist-holder'></table>";
         }
         if ($video["owner_id"] == $user_id){
-            echo "<a href='?target=video&action=loadEdit&id=" . $video["id"] . "'><button>Edit video</button></a><br>";
-            echo "<a href='?target=video&action=delete&id=" . $video["id"] . "'><button>Delete video</button></a><br>";
+            echo "<a href='/video/edit/" . $video["id"] . "'><button>Edit video</button></a><br>";
+            echo "<a href='/video/delete/" . $video["id"] . "'><button>Delete video</button></a><br>";
         }
         else {
             if ($user_id) {
