@@ -42,11 +42,11 @@ require_once "navigation.php";
     }
     ?>
     </p>
-<img style="height: 30px;" src="styles/images/likeImg.png" id="like" <?php if ($video["isReacting"] == 1) { echo " style='color:blue' "; } else { echo " style='color:gray' "; }?>
-        onclick="likeVideo(<?= $video["id"]; ?>)">
+<img style="height: 30px;" src="../styles/images/likeImg.png" id="like" <?php if ($video["isReacting"] == 1) { echo " style='color:blue' "; } else { echo " style='color:gray' "; }?>
+     onclick="likeVideo(<?= $video["id"]; ?>)">
     (<span id="likes-count"><?= $video["likes"]; ?></span>)
-<img style="height:30px;" src="styles/images/dislikeImg.png" id="dislike"  <?php if ($video["isReacting"] == 0) { echo " style='color:blue' "; } else { echo " style='color:gray' "; }?>
-        onclick="dislikeVideo(<?= $video["id"]; ?>)">
+<img style="height:30px;" src="../styles/images/dislikeImg.png" id="dislike"  <?php if ($video["isReacting"] == 0) { echo " style='color:blue' "; } else { echo " style='color:gray' "; }?>
+     onclick="dislikeVideo(<?= $video["id"]; ?>)">
     (<span id="dislikes-count"><?= $video["dislikes"]; ?></span>)
     <br>
     <?php
@@ -77,9 +77,9 @@ require_once "navigation.php";
                 echo "<td>" . $comment["name"] . "</td><td>" . $comment["date"] . "</td>";
                 echo "<td>" . $comment["content"] . "</td>";
                 echo "<td>
-                    <img src='styles/images/likeImg.png' style='height: 30px;' id='like-comment" . $comment["id"] . "' onclick='likeComment(" . $comment["id"] .
+                    <img src='../styles/images/likeImg.png' style='height: 30px;' id='like-comment" . $comment["id"] . "' onclick='likeComment(" . $comment["id"] .
                     ")'>(<span id='comment" . $comment["id"] . "-likes'>" . $comment["likes"] .
-                    "</span>)<img src='styles/images/dislikeImg.png' style='height: 30px' id='dislike-comment" . $comment["id"] . "' onclick='dislikeComment(" . $comment["id"] .
+                    "</span>)<img src='../styles/images/dislikeImg.png' style='height: 30px' id='dislike-comment" . $comment["id"] . "' onclick='dislikeComment(" . $comment["id"] .
                     ")'>(<span id='comment" . $comment["id"] . "-dislikes'>" . $comment["dislikes"] . "</span>)";
                 if ($comment["owner_id"] == $user_id){
                     echo "<img style='height: 20px;margin-left: 5px;' src='styles/images/deleteIcon.png' id='delete-comment' onclick='deleteComment(" . $comment["id"] .

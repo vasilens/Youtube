@@ -6,6 +6,9 @@ use exceptions\InvalidArgumentException;
 
 class Router
 {
+    /**
+     * @var string
+     */
     private $uri;
 
     public function __construct()
@@ -13,36 +16,30 @@ class Router
         $this->uri = $_SERVER['REQUEST_URI'];
     }
 
+    /**
+     * @param $route
+     * @param $classAndMethod
+     */
     public function route($route, $classAndMethod)
     {
         $flag = false;
         $intPlace = null;
         $arrayRoute = explode('/', $route);
         $arrayUri = explode('/', $this->uri);
-//        echo "ROUTE";
-//        var_dump($arrayRoute);
-//        echo "URI";
-//        var_dump($arrayUri);
-        if ($this->uri == '/') {
-            $classAndMethodArray = explode('@', $classAndMethod);
-            $class = '\\controller\\' . ucfirst($classAndMethodArray[0]);
-            $method = $classAndMethodArray[1];
-            $controller = new $class;
-            $controller->$method();
-            die;
-        }
-        foreach ($arrayUri as $key => $value) {
-            if (is_numeric($value)) {
-                $flag = true;
-                $intPlace = $key;
-                break;
+        if (preg_match_all('/\d+/', $this->uri))
+        {
+            foreach ($arrayUri as $key => $value) {
+                if (is_numeric($value)) {
+                    $flag = true;
+                    $intPlace = $key;
+                    break;
+                }
             }
-
         }
         if ($flag == false && $arrayUri === $arrayRoute) {
-            $class = explode('@', $classAndMethod);
-            $className = '\\controller\\' . ucfirst($class[0]);
-            $method = $class[1];
+            $classAndMethodArray = explode('@', $classAndMethod);
+            $className = '\\controller\\' . ucfirst($classAndMethodArray[0]);
+            $method = $classAndMethodArray[1];
             $controller = new $className;
             $arrayUri[1] == 'view' ?   $controller->$method($arrayUri[2]) :  $controller->$method();
             die;

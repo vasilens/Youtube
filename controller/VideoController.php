@@ -146,7 +146,7 @@ class VideoController{
             }
         }
         else {
-//            throw new InvalidArgumentException("Invalid arguments.");
+            throw new InvalidArgumentException("Invalid arguments.");
         }
     }
 

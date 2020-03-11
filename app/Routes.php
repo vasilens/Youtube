@@ -16,17 +16,17 @@ $router->route('/user/register', 'UserController@register');
 $router->route('/user/edit', 'UserController@edit');
 $router->route('/user/logout', 'UserController@logout');
 $router->route('/user/profile/{id}', 'UserController@getById');
-//$router->route('/user/profile/{id}', 'UserController@getById');
-$router->route('/user/subscriptions/{id}', 'UserController@subscriptions');
+$router->route('/subscriptions/{id}', 'UserController@subscriptions');
 //TODO GET parameter followed_id
 $router->route('/user/follow/{id}', 'UserController@follow');
+$router->route('/video/{id}/status/{id}', 'UserController@reactVideo');
 //TODO isfollowing method + all other user methods
 $router->route('/user/unfollow/{id}', 'UserController@unfollow');
-//$router->route('/user/');
+$router->route('/user/followed/{id}', 'UserController@clickedUser');
 $router->route('/playlist/create', 'PlaylistController@create');
 $router->route('/myplaylists/{id}', 'PlaylistController@getMyPlaylists');
 $router->route('/playlist/{id}', 'PlaylistController@clickedPlaylist');
-$router->route('/playlist/add/{playlist_id}/{video_id}', 'PlaylistController@addToPlaylist');
+$router->route('/playlist/{id}/video/{id}', 'PlaylistController@addToPlaylist');
 $router->route('/search', 'SearchController@search');
 $router->route('/comment/add', 'CommentController@add');
 $router->route('/comment/delete/{id}', 'CommentController@delete');
