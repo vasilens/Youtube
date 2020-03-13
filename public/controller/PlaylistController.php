@@ -76,12 +76,9 @@ class PlaylistController
 
     public function addToPlaylist()
     {
-        if(
-            isset($_GET["playlist_id"]) &&
-            isset($_GET["video_id"])
-        ) {
-        $playlist_id = $_GET["playlist_id"];
-        $video_id = $_GET["video_id"];
+        if (isset($_GET["playlist_id"]) && isset($_GET["video_id"])) {
+            $playlist_id = $_GET["playlist_id"];
+            $video_id = $_GET["video_id"];
         }
         if (empty($playlist_id) || empty($video_id)) {
             throw new InvalidArgumentException("Invalid arguments.");

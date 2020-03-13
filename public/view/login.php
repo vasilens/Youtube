@@ -26,13 +26,13 @@ if(isset($msg)) {
                 <a href="?target=video&action=getAll"><img src="../styles/images/youtube_PNG5.png" id="icon"
                                                            alt="User Icon"/></a>
             </div>
-            <form action="?target=user&action=login" method="post">
+            <form action="/user/login" method="post">
                 <input type="text" id="login" class="fadeIn second" name="email" placeholder="email">
                 <input type="password" id="password" class="fadeIn third" name="password" placeholder="password">
                 <input type="submit" class="fadeIn fourth" name="login" value="Log In">
             </form>
             <div id="formFooter">
-                Don't have an account? <a class="underlineHover" href='?target=view&action=viewRouter&view=register'>Sign
+                Don't have an account? <a class="underlineHover" href='/user/register'>Sign
                     Up</a>
             </div>
         </div>
