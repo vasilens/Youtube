@@ -48,7 +48,6 @@ function addComment() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var res = JSON.parse(this.response);
-            console.log(res);
             var comment_id = res.id;
             document.getElementById("content").value = "";
             var table = document.getElementById("comments");
