@@ -204,6 +204,7 @@ class VideoController{
             include_once "view/main.php";
         }
     }
+
     public function getById($id=null){
         if (isset ($_GET["id"])){
             $id = $_GET["id"];

@@ -11,12 +11,12 @@
 </head>
 <body>
 <?php
-if (isset($msg)) {
+if(isset($msg)) {
     ?>
     <div style="text-align: center;" class="alert alert-danger" role="alert">
         <?php echo $msg ?>
-    </div>
-    <?php
+</div>
+<?php
 }
 ?>
 <form action="/user/login" method="post">
