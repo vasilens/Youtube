@@ -6,7 +6,7 @@ $user_id = $_SESSION["logged_user"]["id"];
 require_once "header.php";
 require_once "navigation.php";
 ?>
-<form action="?target=playlist&action=create" method="post">
+<form action="/playlist/create" method="post">
     <table>
         <tr>
             <td><label for="title"><b>Title:</b></label></td>

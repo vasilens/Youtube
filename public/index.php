@@ -12,7 +12,7 @@ spl_autoload_register(function ($class){
 
 session_start();
 
-require_once('Router.php');
+require_once('components/router/Router.php');
 require_once('app/Routes.php');
 
 function handleExceptions(Exception $exception){
