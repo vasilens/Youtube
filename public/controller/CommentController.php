@@ -9,6 +9,7 @@ use model\VideoDAO;
 class CommentController
 {
     public function add(){
+        var_dump($_POST);
         if (!isset($_SESSION["logged_user"]["id"])){
             throw new AuthorizationException("Log in to comment.");
         }
@@ -68,6 +69,7 @@ class CommentController
     }
 
     public function react(){
+        var_dump($_GET);
         if (isset($_GET["id"]) && isset($_GET["status"])){
             $comment_id = $_GET["id"];
             $status = $_GET["status"];

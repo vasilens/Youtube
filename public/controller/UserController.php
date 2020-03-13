@@ -334,6 +334,7 @@ class UserController {
     }
 
     public function reactVideo(){
+        var_dump($_GET);
         if (isset($_GET["id"]) && isset($_GET["status"])){
             $video_id = $_GET["id"];
             $status = $_GET["status"];
@@ -367,6 +368,9 @@ class UserController {
         $arr["stat"] = $this->isReacting();
         $arr["likes"] = $videodao->getReactions($video_id, 1);
         $arr["dislikes"] = $videodao->getReactions($video_id, 0);
+        var_dump($arr);
+
+        die;
         echo json_encode($arr);
     }
 

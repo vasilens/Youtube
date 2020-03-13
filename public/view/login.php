@@ -11,19 +11,20 @@
 </head>
 <body>
 <?php
-if(isset($msg)){
+if (isset($msg)) {
     ?>
     <div style="text-align: center;" class="alert alert-danger" role="alert">
         <?php echo $msg ?>
-</div>
-<?php
+    </div>
+    <?php
 }
 ?>
 <form action="/user/login" method="post">
     <div class="wrapper fadeInDown">
         <div id="formContent">
             <div class="fadeIn first">
-                <a href="?target=video&action=getAll"><img src="../styles/images/youtube_PNG5.png" id="icon" alt="User Icon" /></a>
+                <a href="?target=video&action=getAll"><img src="../styles/images/youtube_PNG5.png" id="icon"
+                                                           alt="User Icon"/></a>
             </div>
             <form action="?target=user&action=login" method="post">
                 <input type="text" id="login" class="fadeIn second" name="email" placeholder="email">
@@ -31,7 +32,8 @@ if(isset($msg)){
                 <input type="submit" class="fadeIn fourth" name="login" value="Log In">
             </form>
             <div id="formFooter">
-                Don't have an account? <a class="underlineHover" href='?target=view&action=viewRouter&view=register'>Sign Up</a>
+                Don't have an account? <a class="underlineHover" href='?target=view&action=viewRouter&view=register'>Sign
+                    Up</a>
             </div>
         </div>
     </div>

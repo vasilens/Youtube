@@ -9,7 +9,7 @@ if (!isset($categories)){
 require_once "header.php";
 require_once "navigation.php";
 ?>
-<form action="?target=video&action=upload" method="post" enctype="multipart/form-data">
+<form action="/video/upload" method="post" enctype="multipart/form-data">
     <table>
         <tr>
             <td><label for="title"><b>Title:</b></label></td>

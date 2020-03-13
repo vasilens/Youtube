@@ -16,7 +16,8 @@ require_once "navigation.php";
         echo $video["date_uploaded"] . "<br>";
         echo "Views: " . $video['views'] . "<br>";
         echo $video["name"] . "<br>";
-        echo "<a href='/user/'" . $video["user_id"] . "'>" . $video["username"] . "</a><br>";
+        echo $video["user_id"];
+        echo "<a href='/user/profile/" . $video["user_id"] . "'>" . $video["username"] . "</a><br>";
         if(isset($_SESSION['logged_user'])){
         echo "<button id='showPlaylists' onclick='showMyPlaylists(". $user_id." ,". $video_id .")'>Add to playlist</button>";
         echo "<table id='playlist-holder'></table>";
@@ -42,18 +43,18 @@ require_once "navigation.php";
     }
     ?>
     </p>
-<img style="height: 30px;" src="../styles/images/likeImg.png" id="like" <?php if ($video["isReacting"] == 1) { echo " style='color:blue' "; } else { echo " style='color:gray' "; }?>
+<img style="height: 30px;" src="../../styles/images/likeImg.png" id="like" <?php if ($video["isReacting"] == 1) { echo " style='color:blue' "; } else { echo " style='color:gray' "; }?>
      onclick="likeVideo(<?= $video["id"]; ?>)">
     (<span id="likes-count"><?= $video["likes"]; ?></span>)
-<img style="height:30px;" src="../styles/images/dislikeImg.png" id="dislike"  <?php if ($video["isReacting"] == 0) { echo " style='color:blue' "; } else { echo " style='color:gray' "; }?>
-     onclick="dislikeVideo(<?= $video["id"]; ?>)">
+<img style="height:30px;" src="../../styles/images/dislikeImg.png" id="dislike"  <?php if ($video["isReacting"] == 0) { echo " style='color:blue' "; } else { echo " style='color:gray' "; }?>
+     onclick='dislikeVideo(<?= $video["id"]; ?>)'>
     (<span id="dislikes-count"><?= $video["dislikes"]; ?></span>)
     <br>
     <?php
     if(isset($user_id) && !empty($user_id)){
         ?>
     Write comment:
-    <form method="post" action="?target=comment&action=add">
+    <form method="post" action="/comment/add">
         <input type="hidden" id="video_id" name="video_id" value="<?= $video["id"]; ?>" required>
         <input type="hidden" id="owner_id" name="owner_id" value="<?= $user_id; ?>" required>
         <textarea rows="5" cols="50" id="content" name="content" required></textarea><br>

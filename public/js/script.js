@@ -15,7 +15,7 @@ function likeVideo(video_id) {
             }
         }
     };
-    xhttp.open("GET", "?target=user&action=reactVideo&id=" + video_id + "&status=1", true);
+    xhttp.open("GET", "/video/" + video_id + "/react/1", true);
     xhttp.send();
 }
 
@@ -36,7 +36,7 @@ function dislikeVideo(video_id) {
             }
         }
     };
-    xhttp.open("GET", "?target=user&action=reactVideo&id=" + video_id + "&status=0", true);
+    xhttp.open("GET", "/video/" + video_id + "/react/0", true);
     xhttp.send();
 }
 
@@ -48,6 +48,7 @@ function addComment() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var res = JSON.parse(this.response);
+            console.log(res);
             var comment_id = res.id;
             document.getElementById("content").value = "";
             var table = document.getElementById("comments");
@@ -69,7 +70,7 @@ function addComment() {
                 "</span>) <img style='height: 20px;margin-left: 5px;' src='styles/images/deleteIcon.png' onclick='deleteComment("+comment_id+")'>";
         }
     };
-    xhttp.open("POST", "?target=comment&action=add", true);
+    xhttp.open("POST", "/comment/add", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhttp.send('video_id=' + video_id +  '&owner_id=' + owner_id + '&content=' + content);
 }
@@ -81,7 +82,7 @@ function deleteComment(comment_id) {
             document.getElementById("comment"+comment_id).remove();
         }
     };
-    xhttp.open("GET", "?target=comment&action=delete&id=" + comment_id, true);
+    xhttp.open("GET", "/comment/delete/" + comment_id, true);
     xhttp.send();
 }
 
@@ -102,7 +103,7 @@ function likeComment(comment_id) {
             }
         }
     };
-    xhttp.open("GET", "?target=comment&action=react&id=" + comment_id + "&status=1", true);
+    xhttp.open("GET", "/comment/" + comment_id + "/react/1", true);
     xhttp.send();
 }
 
@@ -123,7 +124,7 @@ function dislikeComment(comment_id) {
             }
         }
     };
-    xhttp.open("GET", "?target=comment&action=react&id=" + comment_id + "&status=0", true);
+    xhttp.open("GET", "/comment/" + comment_id + "/react/0", true);
     xhttp.send();
 }
 
@@ -137,7 +138,7 @@ function followUser(user_id) {
             };
         }
     };
-    xhttp.open("GET", "?target=user&action=follow&id=" + user_id, true);
+    xhttp.open("GET", "/user/follow/" + user_id, true);
     xhttp.send();
 }
 
@@ -151,7 +152,7 @@ function unfollowUser(user_id) {
             };
         }
     };
-    xhttp.open("GET", "?target=user&action=unfollow&id=" + user_id, true);
+    xhttp.open("GET", "/user/unfollow/" + user_id, true);
     xhttp.send();
 }
 
@@ -177,7 +178,7 @@ function showMyPlaylists(user_id, video_id){
             //     video_id+")'>Save</button>"
         }
     };
-    xhttp.open("POST", "?target=playlist&action=getMyPlaylistsJSON&owner_id=" + user_id, true);
+    xhttp.open("POST", "/playlist/show/" + user_id, true);
     xhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     xhttp.send(data);
 }
@@ -193,6 +194,6 @@ function addToPlaylist(playlist_id, video_id){
         }
         };
 
-    xhttp.open("GET", "/?target=playlist&action=addToPlaylist&playlist_id=" + playlist_id + "&video_id=" + video_id, true);
+    xhttp.open("GET", "/playlist/" + playlist_id + "/video/" + video_id, true);
     xhttp.send();
 }

@@ -11,7 +11,7 @@ require_once "navigation.php";
                 echo $subscription['avatar_url'];
                 echo "'></td>";
                 echo "<td>";
-                echo "<a href='?target=user&action=getById&id=" . $subscription["followed_id"] . "'><b>" . $subscription["username"] . "</b></a>";
+                echo "<a href='/user/profile/" . $subscription["followed_id"] . "'><b>" . $subscription["username"] . "</b></a>";
                 echo "</td></tr>";
                 echo "<tr><td>";
                 echo $subscription['name'];
