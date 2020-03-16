@@ -1,6 +1,6 @@
 <?php
 
-namespace router\http;
+namespace components\router\http;
 
 class Request
 {

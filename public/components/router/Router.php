@@ -2,6 +2,7 @@
 
 namespace router;
 
+use components\router\http\Request;
 use exceptions\InvalidArgumentException;
 
 class Router
@@ -16,12 +17,13 @@ class Router
      * @var string
      */
     private $uri;
+    protected $request;
 
-    public function __construct()
+    public function __construct(Request $request)
     {
         $this->uri = $_SERVER['REQUEST_URI'];
+        $this->request = $request;
     }
-
     /**
      * @param string $route
      * @param string $classAndMethod

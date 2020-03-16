@@ -1,5 +1,6 @@
 <?php
-$router = new \router\Router();
+$request = new \components\router\http\Request();
+$router = new \router\Router($request);
 $router->route('/', 'VideoController@getAll');
 $router->route('/video/upload', 'VideoController@upload');
 $router->route('/video/delete/{id}', 'VideoController@delete');
