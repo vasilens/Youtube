@@ -20,10 +20,6 @@ class Request
      * @var string
      */
     private $requestMethod;
-    /**
-     * @var Request
-     */
-    private static $instance;
 
     /**
      * Request constructor.
@@ -34,17 +30,6 @@ class Request
     $this->postParams = $_POST;
     $this->requestMethod = $_SERVER['REQUEST_METHOD'];
     $this->requestUri = $_SERVER['REQUEST_URI'];
-    }
-
-    /**
-     * @return Request
-     */
-    public static function getInstance()
-    {
-        if (self::$instance == null) {
-            self::$instance = new Request();
-        }
-        return self::$instance;
     }
 
     /**
