@@ -4,16 +4,34 @@ namespace router\http;
 
 class Request
 {
-    private $post;
-    private $get;
+    /**
+     * @var array
+     */
+    private $postParams;
+    /**
+     * @var array
+     */
+    private $getParams;
+    /**
+     * @var string
+     */
     private $requestUri;
+    /**
+     * @var string
+     */
     private $requestMethod;
+    /**
+     * @var Request
+     */
     private static $instance;
 
+    /**
+     * Request constructor.
+     */
     private function __construct()
     {
-    $this->get = $_GET;
-    $this->post = $_POST;
+    $this->getParams = $_GET;
+    $this->postParams = $_POST;
     $this->requestMethod = $_SERVER['REQUEST_METHOD'];
     $this->requestUri = $_SERVER['REQUEST_URI'];
     }
@@ -23,17 +41,18 @@ class Request
      */
     public static function getInstance()
     {
-        if(self::$instance == null){
+        if (self::$instance == null) {
             self::$instance = new Request();
         }
         return self::$instance;
     }
+
     /**
      * @return array
      */
     public function postParams()
     {
-        return $this->post;
+        return $this->postParams;
     }
 
     /**
@@ -41,11 +60,11 @@ class Request
      */
     public function getParams()
     {
-        return $this->get;
+        return $this->getParams;
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getRequestUri()
     {
