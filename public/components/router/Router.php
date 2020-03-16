@@ -3,6 +3,7 @@
 namespace router;
 
 use exceptions\InvalidArgumentException;
+use components\router\http\Request;
 
 class Router
 {
@@ -15,12 +16,12 @@ class Router
     /**
      * @var string
      */
-    private $uri;
+//    private $uri;
 
-    public function __construct()
-    {
-        $this->uri = $_SERVER['REQUEST_URI'];
-    }
+//    public function __construct()
+//    {
+//        $this->uri = $_SERVER['REQUEST_URI'];
+//    }
 
     /**
      * @param string $route
@@ -30,8 +31,10 @@ class Router
      */
     public function route($route, $classAndMethod)
     {
-        $dynamicRoute = preg_match(self::REGEX, $this->uri);
-        $arrayUri = explode(self::URI_DELIMITER, $this->uri);
+        $requestUri = Request::getInstance()->getRequestUri();
+        var_dump($requestUri);
+        $dynamicRoute = preg_match(self::REGEX, $requestUri);
+        $arrayUri = explode(self::URI_DELIMITER, $requestUri);
 
         switch ($dynamicRoute) {
             case true:
@@ -51,7 +54,7 @@ class Router
                 }
                 break;
             case false:
-                if ($route === $this->uri) {
+                if ($route === $requestUri) {
                     $classAndMethodArray = explode(self::CLASS_AND_METHOD_DELIMITER, $classAndMethod);
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];

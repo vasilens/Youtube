@@ -1,5 +1,6 @@
 <?php
 namespace controller;
+use components\router\http\Request;
 use exceptions\InvalidArgumentException;
 use exceptions\AuthorizationException;
 use model\Comment;
@@ -8,7 +9,9 @@ use model\VideoDAO;
 
 class CommentController
 {
-    public function add(){
+    public function add()
+    {
+
         if (!isset($_SESSION["logged_user"]["id"])){
             throw new AuthorizationException("Log in to comment.");
         }
@@ -36,7 +39,8 @@ class CommentController
         echo json_encode($comment);
     }
 
-    public function delete(){
+    public function delete()
+    {
         if (isset($_GET["id"])){
             $comment_id = $_GET["id"];
             $owner_id = $_SESSION["logged_user"]["id"];
@@ -55,7 +59,8 @@ class CommentController
         $dao->deleteComment($comment_id, $owner_id);
     }
 
-    public function isReactingComment($user_id=null, $comment_id=null){
+    public function isReactingComment($user_id=null, $comment_id=null)
+    {
         if (isset($_GET["id"])){
             $comment_id = $_GET["id"];
             $user_id = $_SESSION["logged_user"]["id"];
@@ -67,7 +72,8 @@ class CommentController
         return $dao->isReactingComment($user_id, $comment_id);
     }
 
-    public function react(){
+    public function react()
+    {
         if (isset($_GET["id"]) && isset($_GET["status"])){
             $comment_id = $_GET["id"];
             $status = $_GET["status"];

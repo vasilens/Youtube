@@ -1,19 +1,19 @@
 <?php
 
-namespace router\http;
+namespace components\router\http;
 
 class Request
 {
-    private $post;
-    private $get;
+    private $postParams;
+    private $getParams;
     private $requestUri;
     private $requestMethod;
     private static $instance;
 
     private function __construct()
     {
-    $this->get = $_GET;
-    $this->post = $_POST;
+    $this->getParams = $_GET;
+    $this->postParams = $_POST;
     $this->requestMethod = $_SERVER['REQUEST_METHOD'];
     $this->requestUri = $_SERVER['REQUEST_URI'];
     }
@@ -33,7 +33,7 @@ class Request
      */
     public function postParams()
     {
-        return $this->post;
+        return $this->postParams;
     }
 
     /**
@@ -41,11 +41,11 @@ class Request
      */
     public function getParams()
     {
-        return $this->get;
+        return $this->getParams;
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getRequestUri()
     {
