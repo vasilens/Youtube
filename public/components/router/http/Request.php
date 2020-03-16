@@ -5,29 +5,29 @@ namespace components\router\http;
 class Request
 {
     /**
-     * @var array
+     * @var string
      */
-    private $postParams;
-
-    /**
-     * @var array
-     */
-    private $getParams;
+    public $postParams;
 
     /**
      * @var string
      */
-    private $requestUri;
+    public $getParams;
 
     /**
      * @var string
      */
-    private $requestMethod;
+    public $requestUri;
+
+    /**
+     * @var string
+     */
+    public $requestMethod;
 
     /**
      * Request constructor.
      */
-    private function __construct()
+    public function __construct()
     {
         $this->getParams = $_GET;
         $this->postParams = $_POST;
@@ -36,7 +36,7 @@ class Request
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getPostParams()
     {
@@ -44,7 +44,7 @@ class Request
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getGetParams()
     {
@@ -60,7 +60,7 @@ class Request
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getRequestMethod()
     {
