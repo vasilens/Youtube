@@ -1,5 +1,7 @@
 <?php
+
 namespace controller;
+
 use exceptions\InvalidArgumentException;
 use exceptions\AuthorizationException;
 use model\Comment;

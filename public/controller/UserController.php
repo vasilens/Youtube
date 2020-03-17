@@ -1,4 +1,5 @@
 <?php
+
 namespace controller;
 
 use exceptions\AuthorizationException;
@@ -57,20 +58,16 @@ class UserController extends AbstractController {
             if (!isset($postParams["username"]) || empty(trim($postParams["username"]))) {
                 $msg = "Username is empty!";
                 $error = true;
-            }
-            elseif (!isset($postParams["full_name"]) || empty(trim($postParams["full_name"]))) {
+            } elseif (!isset($postParams["full_name"]) || empty(trim($postParams["full_name"]))) {
                 $msg = "Name is empty!";
                 $error = true;
-            }
-            elseif (!isset($postParams["email"]) || empty(trim($postParams["email"]))) {
+            } elseif (!isset($postParams["email"]) || empty(trim($postParams["email"]))) {
                 $msg = "Email is empty!";
                 $error = true;
-            }
-            elseif (!isset($postParams["password"]) || empty(trim($postParams["password"]))) {
+            } elseif (!isset($postParams["password"]) || empty(trim($postParams["password"]))) {
                 $msg = "Password is empty!";
                 $error = true;
-            }
-            elseif (!isset($postParams["cpassword"]) || empty(trim($postParams["cpassword"]))) {
+            } elseif (!isset($postParams["cpassword"]) || empty(trim($postParams["cpassword"]))) {
                 $msg = "Confirm password is empty!";
                 $error = true;
             }
@@ -131,20 +128,16 @@ class UserController extends AbstractController {
             if (!isset($postParams["username"]) || empty(trim($postParams["username"]))) {
                 $msg = "Username is empty";
                 $error = true;
-            }
-            elseif (!isset($postParams["full_name"]) || empty(trim($postParams["full_name"]))) {
+            } elseif (!isset($postParams["full_name"]) || empty(trim($postParams["full_name"]))) {
                 $msg = "Name is empty";
                 $error = true;
-            }
-            elseif (!isset($postParams["email"]) || empty(trim($postParams["email"]))) {
+            } elseif (!isset($postParams["email"]) || empty(trim($postParams["email"]))) {
                 $msg = "Email is empty";
                 $error = true;
-            }
-            elseif (!isset($postParams["password"]) || empty(trim($postParams["password"]))) {
+            } elseif (!isset($postParams["password"]) || empty(trim($postParams["password"]))) {
                 $msg = "Password is empty";
                 $error = true;
-            }
-            elseif ((!isset($postParams["cpassword"]) || empty(trim($postParams["cpassword"]))) &&
+            } elseif ((!isset($postParams["cpassword"]) || empty(trim($postParams["cpassword"]))) &&
                 (isset($postParams["new_password"]) && !empty(trim($postParams["new_password"])))) {
                 $msg = "Confirm new password is empty";
                 $error = true;
@@ -200,13 +193,11 @@ class UserController extends AbstractController {
                 $_SESSION['logged_user'] = $arrayUser;
                 include_once "view/main.php";
                 echo "Profile changed successfully!";
-            }
-            else {
+            } else {
                 include_once "view/editProfile.php";
                 echo "Incorrect password!";
             }
-        }
-        else {
+        } else {
             throw new InvalidArgumentException("Invalid arguments.");
         }
     }
@@ -225,8 +216,7 @@ class UserController extends AbstractController {
             $file_url = "uploads" . DIRECTORY_SEPARATOR . $filename;
             if (move_uploaded_file($_FILES[$file]["tmp_name"], $file_url)) {
                 return $file_url;
-            }
-            else {
+            } else {
                 throw new InvalidFileException("File handling error.");
             }
         }
@@ -255,8 +245,7 @@ class UserController extends AbstractController {
                 if (!(preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*\W).*$#", $password))) {
                     $msg .= " Wrong password input. <br> Password should be at least 8 characters, including lowercase, uppercase, number and symbol. <br>";
                 }
-            }
-            else {
+            } else {
                 $msg .= "Passwords not matching! <br>";
             }
         }
@@ -394,8 +383,7 @@ class UserController extends AbstractController {
         $getParams = $this->request->getGetParams();
         if (isset($getParams['user_id'])) {
             $user_id = $getParams['user_id'];
-        }
-        else {
+        } else {
             if (isset($_SESSION["logged_user"]["id"])) {
                 $user_id = $_SESSION["logged_user"]["id"];
             }
@@ -408,8 +396,7 @@ class UserController extends AbstractController {
             }
             $subscriptions = $dao->getSubscriptions($user_id);
             include_once "view/subscriptions.php";
-        }
-        else {
+        } else {
             include_once "view/subscriptions.php";
             echo "<h3>Login to view your subscriptions!</h3>";
         }

@@ -1,4 +1,5 @@
 <?php
+
 namespace controller;
 include_once "fileHandler.php";
 
@@ -20,22 +21,17 @@ class VideoController extends AbstractController
             if (!isset($postParams["title"]) || empty(trim($postParams["title"]))) {
                 $msg = "Title is empty";
                 $error = true;
-            }
-            elseif (!isset($postParams["description"]) || empty(trim($postParams["description"]))) {
+            } elseif (!isset($postParams["description"]) || empty(trim($postParams["description"]))) {
                 $msg = "Description is empty";
                 $error = true;
-            }
-            elseif (!isset($postParams["category_id"]) || empty($postParams["category_id"])) {
+            } elseif (!isset($postParams["category_id"]) || empty($postParams["category_id"])) {
                 $msg = "Category is empty";
                 $error = true;
-            }
-            elseif (!isset($postParams["owner_id"]) || empty($postParams["owner_id"])) {
+            } elseif (!isset($postParams["owner_id"]) || empty($postParams["owner_id"])) {
                 throw new InvalidArgumentException("Invalid arguments.");
-            }
-            elseif ($postParams["owner_id"] != $_SESSION["logged_user"]["id"]) {
+            } elseif ($postParams["owner_id"] != $_SESSION["logged_user"]["id"]) {
                 throw new AuthorizationException("Unauthorized user.");
-            }
-            elseif (!isset($_FILES["video"]["tmp_name"])) {
+            } elseif (!isset($_FILES["video"]["tmp_name"])) {
                 $msg = "Video not uploaded";
                 $error = true;
             }
@@ -44,8 +40,7 @@ class VideoController extends AbstractController
                 $categories = $dao->getCategories();
                 include_once "view/upload.php";
                 echo $msg;
-            }
-            else {
+            } else {
                 $dao = VideoDAO::getInstance();
                 $categoryExists = $dao->getCategoryById($postParams["category_id"]);
                 if (!$categoryExists) {
@@ -64,8 +59,7 @@ class VideoController extends AbstractController
                 include_once "view/main.php";
                 echo "Upload successfull.";
             }
-        }
-        else {
+        } else {
             throw new InvalidArgumentException("Invalid arguments.");
         }
     }
@@ -94,28 +88,23 @@ class VideoController extends AbstractController
     public function edit()
     {
         $postParams = $this->request->getPostParams();
-        if(isset($postParams['edit'])) {
+        if (isset($postParams['edit'])) {
             $error = false;
             $msg = "";
             if (!isset($postParams["id"]) || empty($postParams["id"])) {
                 throw new InvalidArgumentException("Invalid arguments.");
-            }
-            elseif (!isset($postParams["title"]) || empty(trim($postParams["title"]))) {
+            } elseif (!isset($postParams["title"]) || empty(trim($postParams["title"]))) {
                 $msg = "Title is empty";
                 $error = true;
-            }
-            elseif (!isset($postParams["description"]) || empty(trim($postParams["description"]))) {
+            } elseif (!isset($postParams["description"]) || empty(trim($postParams["description"]))) {
                 $msg = "Description is empty";
                 $error = true;
-            }
-            elseif (!isset($postParams["category_id"]) || empty($postParams["category_id"])) {
+            } elseif (!isset($postParams["category_id"]) || empty($postParams["category_id"])) {
                 $msg = "Category is empty";
                 $error = true;
-            }
-            elseif (!isset($postParams["owner_id"]) || empty($postParams["owner_id"])) {
+            } elseif (!isset($postParams["owner_id"]) || empty($postParams["owner_id"])) {
                 throw new InvalidArgumentException("Invalid arguments.");
-            }
-            elseif ($postParams["owner_id"] != $_SESSION["logged_user"]["id"]) {
+            } elseif ($postParams["owner_id"] != $_SESSION["logged_user"]["id"]) {
                 throw new AuthorizationException("Unauthorized user.");
             }
             if ($error) {
@@ -150,8 +139,7 @@ class VideoController extends AbstractController
                 include_once "view/main.php";
                 echo "Edit successfull.";
             }
-        }
-        else {
+        } else {
             throw new InvalidArgumentException("Invalid arguments.");
         }
     }
@@ -184,15 +172,13 @@ class VideoController extends AbstractController
         $getParams = $this->request->getGetParams();
         if (isset($getParams['owner_id'])) {
             $owner_id = $getParams['owner_id'];
-        }
-        else {
+        } else {
             $owner_id = $_SESSION["logged_user"]["id"];
         }
         if (empty($owner_id)) {
             include_once "view/main.php";
             echo "<h3>Login to like videos!</h3>";
-        }
-        else {
+        } else {
             $orderby = null;
             if (isset($_GET["orderby"])) {
                 switch ($_GET["orderby"]) {
@@ -239,8 +225,7 @@ class VideoController extends AbstractController
             $userdao->addToHistory($id, $user_id, date("Y-m-d H:i:s"));
             $video["isFollowed"] = $userdao->isFollowing($user_id, $video["owner_id"]);
             $video["isReacting"] = $userdao->isReacting($user_id, $id);
-        }
-        else {
+        } else {
             $video["isFollowed"] = false;
             $video["isReacting"] = false;
         }
@@ -281,9 +266,11 @@ class VideoController extends AbstractController
             $orderby = null;
             if (isset($_GET["orderby"])) {
                 switch ($_GET["orderby"]) {
-                    case "date": $orderby = "ORDER BY date_uploaded";
+                    case "date":
+                        $orderby = "ORDER BY date_uploaded";
                         break;
-                    case "likes": $orderby = "ORDER BY likes";
+                    case "likes":
+                        $orderby = "ORDER BY likes";
                         break;
                 }
                 if (isset($_GET["desc"]) && $orderby) {
@@ -293,8 +280,7 @@ class VideoController extends AbstractController
             $dao = VideoDAO::getInstance();
             $videos = $dao->getHistory($user_id, $orderby);
             include_once "view/main.php";
-        }
-        else {
+        } else {
             include_once "view/main.php";
             echo "<h3>Login to record history!</h3>";
         }
@@ -309,8 +295,7 @@ class VideoController extends AbstractController
             $dao = PlaylistDAO::getInstance();
             $videos = $dao->getWatchLater($user_id);
             include_once "view/main.php";
-        }
-        else {
+        } else {
             include_once "view/main.php";
             echo "<h3>Login to save videos for watching later!</h3>";
         }
@@ -336,8 +321,7 @@ class VideoController extends AbstractController
             $dao = VideoDAO::getInstance();
             $videos = $dao->getLikedVideos($user_id, $orderby);
             include_once "view/main.php";
-        }
-        else {
+        } else {
             include_once "view/main.php";
             echo "<h3>Login to like videos!</h3>";
         }
