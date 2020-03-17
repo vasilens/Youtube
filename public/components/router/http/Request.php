@@ -1,6 +1,6 @@
 <?php
 
-namespace router\http;
+namespace components\router\http;
 
 class Request
 {
@@ -27,7 +27,7 @@ class Request
     /**
      * Request constructor.
      */
-    private function __construct()
+    public function __construct()
     {
         $this->getParams = $_GET;
         $this->postParams = $_POST;
@@ -60,7 +60,7 @@ class Request
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getRequestMethod()
     {

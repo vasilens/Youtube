@@ -1,5 +1,10 @@
 <?php
-$router = new \router\Router();
+
+use router\Router;
+use components\router\http\Request;
+
+$router = new Router(new Request());
+
 $router->route('/', 'VideoController@getAll');
 $router->route('/video/upload', 'VideoController@upload');
 $router->route('/video/delete/{id}', 'VideoController@delete');
