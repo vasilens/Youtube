@@ -10,7 +10,6 @@ use model\Video;
 use model\VideoDAO;
 
 class VideoController{
-
     public function upload(){
         if(isset($_POST["upload"])) {
             $error = false;
@@ -207,8 +206,8 @@ class VideoController{
     }
 
     public function getById($id=null){
-    if (isset ($_GET["id"])){
-        $id = $_GET["id"];
+        if (isset ($_GET["id"])){
+            $id = $_GET["id"];
         }
         if (empty($id)){
             throw new InvalidArgumentException("Invalid arguments.");
