@@ -22,6 +22,7 @@ class Router
     {
         $this->request = $request;
     }
+
     /**
      * @param string $route
      * @param string $classAndMethod
@@ -58,8 +59,8 @@ class Router
                     $method = $classAndMethodArray[1];
                     $controller = new $className;
                     $arrayUri[1] == self::VIEW_ROUTER ?
-                    $controller->$method($arrayUri[2]) :
-                    $controller->$method($this->request);
+                        $controller->$method($arrayUri[2]) :
+                        $controller->$method($this->request);
                     die;
                 }
         }

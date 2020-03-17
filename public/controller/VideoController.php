@@ -2,7 +2,6 @@
 namespace controller;
 include_once "fileHandler.php";
 
-use components\router\http\Request;
 use exceptions\AuthorizationException;
 use exceptions\InvalidArgumentException;
 use model\PlaylistDAO;
@@ -10,7 +9,7 @@ use model\UserDAO;
 use model\Video;
 use model\VideoDAO;
 
-class VideoController {
+class VideoController{
 
     public function upload(){
         if(isset($_POST["upload"])) {
@@ -207,10 +206,9 @@ class VideoController {
         }
     }
 
-    public function getById(Request $request){
-        if (isset($request)){
-        $getParams = $request->getGetParams();
-        $id = $getParams['id'];
+    public function getById($id=null){
+    if (isset ($_GET["id"])){
+        $id = $_GET["id"];
         }
         if (empty($id)){
             throw new InvalidArgumentException("Invalid arguments.");
