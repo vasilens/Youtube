@@ -1,6 +1,5 @@
 <?php
 
-
 namespace controller;
 
 use exceptions\AuthorizationException;
@@ -38,8 +37,7 @@ class PlaylistController extends AbstractController
             $dao->create($playlist);
             include_once "view/playlists.php";
             echo "Created successfully!";
-        }
-        else {
+        } else {
             throw new InvalidArgumentException("Invalid arguments.");
         }
     }
@@ -51,8 +49,7 @@ class PlaylistController extends AbstractController
             $dao = PlaylistDAO::getInstance();
             $playlists = $dao->getAllByUserId($owner_id);
             include_once "view/playlists.php";
-        }
-        else {
+        } else {
             include_once "view/playlists.php";
             echo "<h3>Login to view playlists!</h3>";
         }
@@ -61,9 +58,9 @@ class PlaylistController extends AbstractController
     public function clickedPlaylist()
     {
         $getParams = $this->request->getGetParams();
-
-        if (isset($getParams['playlist_id'])) {
-            $playlist_id = $getParams['playlist_id'];
+        var_dump($getParams);
+        if (isset($getParams['id'])) {
+            $playlist_id = $getParams['id'];
         }
         if (empty($playlist_id)) {
             throw new InvalidArgumentException("Invalid arguments.");
@@ -103,8 +100,7 @@ class PlaylistController extends AbstractController
         $existsRecord = $dao->existsRecord($playlist_id, $video_id);
         if ($existsRecord) {
             $dao->updateRecord($playlist_id, $video_id, $date);
-        }
-        else {
+        } else {
             $dao->addToPlaylist($playlist_id, $video_id, $date);
         }
     }
@@ -114,8 +110,7 @@ class PlaylistController extends AbstractController
         $getParams = $this->request->getGetParams();
         if (isset($getParams["owner_id"])) {
             $owner_id = $getParams["owner_id"];
-        }
-        else {
+        } else {
             if (isset($_SESSION["logged_user"]["id"])) {
                 $owner_id = $_SESSION["logged_user"]["id"];
             }
@@ -124,8 +119,7 @@ class PlaylistController extends AbstractController
             $dao = PlaylistDAO::getInstance();
             $playlists = $dao->getAllByUserId($owner_id);
             echo json_encode($playlists);
-        }
-        else {
+        } else {
             echo "<h3>Login to view playlists!</h3>";
         }
     }
