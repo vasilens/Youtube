@@ -6,82 +6,90 @@ use model\Comment;
 use model\UserDAO;
 use model\VideoDAO;
 
-class CommentController
+class CommentController extends AbstractController
 {
-    public function add(){
-        if (!isset($_SESSION["logged_user"]["id"])){
+    public function add()
+    {
+        $postParams = $this->request->getPostParams();
+        if (!isset($_SESSION["logged_user"]["id"])) {
             throw new AuthorizationException("Log in to comment.");
         }
-        if (empty($_POST["video_id"]) || empty($_POST["owner_id"])) {
+        if (empty($postParams["video_id"]) || empty($postParams["owner_id"])) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        if ($_POST["owner_id"] != $_SESSION["logged_user"]["id"]){
+        if ($postParams["owner_id"] != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
-        if (empty($_POST["content"])){
+        if (empty($postParams["content"])) {
             throw new InvalidArgumentException("Comment is empty.");
         }
         $dao = VideoDAO::getInstance();
-        $video = $dao->getById($_POST["video_id"]);
-        if (empty($video)){
+        $video = $dao->getById($postParams["video_id"]);
+        if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
         }
         $comment = new Comment();
-        $comment->setContent($_POST["content"]);
-        $comment->setVideoId($_POST["video_id"]);
-        $comment->setOwnerId($_POST["owner_id"]);
+        $comment->setContent($postParams["content"]);
+        $comment->setVideoId($postParams["video_id"]);
+        $comment->setOwnerId($postParams["owner_id"]);
         $comment->setDate(date("Y-m-d H:i:s"));
         $comment_id = $dao->addComment($comment);
         $comment = $dao->getCommentById($comment_id);
         echo json_encode($comment);
     }
 
-    public function delete(){
-        if (isset($_GET["id"])){
-            $comment_id = $_GET["id"];
+    public function delete()
+    {
+        $getParams = $this->request->getGetParams();
+        if (isset($getParams["id"])) {
+            $comment_id = $getParams["id"];
             $owner_id = $_SESSION["logged_user"]["id"];
         }
-        if (empty($comment_id) || empty($owner_id)){
+        if (empty($comment_id) || empty($owner_id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        if ($owner_id != $_SESSION["logged_user"]["id"]){
+        if ($owner_id != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
         $dao = VideoDAO::getInstance();
         $comment = $dao->getCommentById($comment_id);
-        if (empty($comment)){
+        if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
         }
         $dao->deleteComment($comment_id, $owner_id);
     }
 
-    public function isReactingComment($user_id=null, $comment_id=null){
-        if (isset($_GET["id"])){
-            $comment_id = $_GET["id"];
+    public function isReactingComment()
+    {
+        $getParams = $this->request->getGetParams();
+        if (isset($getParams["id"])) {
+            $comment_id = $getParams["id"];
             $user_id = $_SESSION["logged_user"]["id"];
         }
-        if (empty($user_id) || empty($comment_id)){
+        if (empty($user_id) || empty($comment_id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
         $dao = UserDAO::getInstance();
         return $dao->isReactingComment($user_id, $comment_id);
     }
 
-    public function react(){
-        if (isset($_GET["id"]) && isset($_GET["status"])){
-            $comment_id = $_GET["id"];
-            $status = $_GET["status"];
+    public function react()
+    {
+        $getParams = $this->request->getGetParams();
+        if (isset($getParams["id"]) && isset($getParams["status"])) {
+            $comment_id = $getParams["id"];
+            $status = $getParams["status"];
         }
         $user_id = $_SESSION["logged_user"]["id"];
-        if (empty($comment_id) || empty($user_id)){
+        if (empty($comment_id) || empty($user_id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        if ($status != 0 && $status != 1){
+        if ($status != 0 && $status != 1) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
         $videodao = VideoDAO::getInstance();
         $comment = $videodao->getCommentById($comment_id);
-        if (empty($comment)){
+        if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
         }
         $isReacting = $this->isReactingComment($user_id, $comment_id);

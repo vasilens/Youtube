@@ -8,27 +8,28 @@ use exceptions\InvalidArgumentException;
 use model\Playlist;
 use model\PlaylistDAO;
 
-class PlaylistController
+class PlaylistController extends AbstractController
 {
     public function create()
     {
-        if (isset($_POST['create'])) {
+        $postParams = $this->request->getPostParams();
+        if (isset($postParams['create'])) {
             $error = false;
             $msg = "";
-            if (!isset($_POST['title']) || empty(trim($_POST["title"]))) {
+            if (!isset($postParams['title']) || empty(trim($postParams["title"]))) {
                 include_once "view/createPlaylist.php";
                 echo "Title is empty";
                 return;
             }
-            if (!isset($_POST["owner_id"]) || empty($_POST["owner_id"])) {
+            if (!isset($postParams["owner_id"]) || empty($postParams["owner_id"])) {
                 throw new InvalidArgumentException("Invalid arguments.");
             }
-            if ($_POST["owner_id"] != $_SESSION["logged_user"]["id"]) {
+            if ($postParams["owner_id"] != $_SESSION["logged_user"]["id"]) {
                 throw new AuthorizationException("Unauthorized user.");
             }
             $playlist = new Playlist();
-            $title = $_POST['title'];
-            $owner_id = $_POST['owner_id'];
+            $title = $postParams['title'];
+            $owner_id = $postParams['owner_id'];
             $date_created = date("Y-m-d H:i:s");
             $playlist->setTitle($title);
             $playlist->setOwnerId($owner_id);
@@ -45,7 +46,7 @@ class PlaylistController
 
     public function getMyPlaylists()
     {
-        if (isset($_SESSION["logged_user"]["id"])){
+        if (isset($_SESSION["logged_user"]["id"])) {
             $owner_id = $_SESSION["logged_user"]["id"];
             $dao = PlaylistDAO::getInstance();
             $playlists = $dao->getAllByUserId($owner_id);
@@ -59,15 +60,17 @@ class PlaylistController
 
     public function clickedPlaylist()
     {
-        if (isset($_GET['playlist_id'])) {
-            $playlist_id = $_GET['playlist_id'];
+        $getParams = $this->request->getGetParams();
+
+        if (isset($getParams['playlist_id'])) {
+            $playlist_id = $getParams['playlist_id'];
         }
-        if (empty($playlist_id)){
+        if (empty($playlist_id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
         $dao = PlaylistDAO::getInstance();
         $exists = $dao->existsPlaylist($playlist_id);
-        if (!$exists){
+        if (!$exists) {
             throw new InvalidArgumentException("Invalid playlist.");
         }
         $videos = $dao->getVideosFromPlaylist($playlist_id);
@@ -76,28 +79,29 @@ class PlaylistController
 
     public function addToPlaylist()
     {
-        if (isset($_GET["playlist_id"]) && isset($_GET["video_id"])) {
-            $playlist_id = $_GET["playlist_id"];
-            $video_id = $_GET["video_id"];
+        $getParams = $this->request->getGetParams();
+        if (isset($getParams["playlist_id"]) && isset($getParams["video_id"])) {
+            $playlist_id = $getParams["playlist_id"];
+            $video_id = $getParams["video_id"];
         }
         if (empty($playlist_id) || empty($video_id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
         $dao = PlaylistDAO::getInstance();
         $playlist = $dao->existsPlaylist($playlist_id);
-        if (!$playlist){
+        if (!$playlist) {
             throw new InvalidArgumentException("Invalid playlist.");
             }
-        if ($playlist["owner_id"] != $_SESSION["logged_user"]["id"]){
+        if ($playlist["owner_id"] != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
         $existsVideo = $dao->existsVideo($video_id);
-        if (!$existsVideo){
+        if (!$existsVideo) {
             throw new InvalidArgumentException("Invalid video.");
         }
         $date = date("Y-m-d H:i:s");
         $existsRecord = $dao->existsRecord($playlist_id, $video_id);
-        if ($existsRecord){
+        if ($existsRecord) {
             $dao->updateRecord($playlist_id, $video_id, $date);
         }
         else {
@@ -107,11 +111,12 @@ class PlaylistController
 
     public function getMyPlaylistsJSON()
     {
-        if (isset($_GET["owner_id"])) {
-            $owner_id = $_GET["owner_id"];
+        $getParams = $this->request->getGetParams();
+        if (isset($getParams["owner_id"])) {
+            $owner_id = $getParams["owner_id"];
         }
         else {
-            if (isset($_SESSION["logged_user"]["id"])){
+            if (isset($_SESSION["logged_user"]["id"])) {
                 $owner_id = $_SESSION["logged_user"]["id"];
             }
         }
