@@ -7,22 +7,22 @@ class Request
     /**
      * @var array
      */
-    public $postParams;
+    private $postParams;
 
     /**
      * @var array
      */
-    public $getParams;
+    private $getParams;
 
     /**
      * @var string
      */
-    public $requestUri;
+    private $requestUri;
 
     /**
      * @var string
      */
-    public $requestMethod;
+    private $requestMethod;
 
     /**
      * Request constructor.
