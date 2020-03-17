@@ -2,6 +2,7 @@
 namespace controller;
 include_once "fileHandler.php";
 
+use components\router\http\Request;
 use exceptions\AuthorizationException;
 use exceptions\InvalidArgumentException;
 use model\PlaylistDAO;
@@ -9,7 +10,7 @@ use model\UserDAO;
 use model\Video;
 use model\VideoDAO;
 
-class VideoController{
+class VideoController extends AbstractController {
     public function upload(){
         if(isset($_POST["upload"])) {
             $error = false;
@@ -88,7 +89,8 @@ class VideoController{
     }
 
     public function edit($id=null){
-        if(isset($_POST["edit"])) {
+        if(isset($this->request)) {
+            $postParams = $this->request->getPostParams();
             $error = false;
             $msg = "";
             if (!isset($_POST["id"]) || empty($_POST["id"])) {
@@ -151,8 +153,9 @@ class VideoController{
     }
 
     public function delete($id=null){
-        if (isset($_GET["id"])){
-            $id = $_GET["id"];
+        if (isset($this->request)){
+            $getParams = $this->request->getGetParams();
+            $id = $getParams['id'];
         }
         $owner_id = $_SESSION["logged_user"]["id"];
         if (empty($id)){
@@ -172,8 +175,9 @@ class VideoController{
     }
 
     public function getByOwnerId($owner_id=null){
-        if (isset($_GET["owner_id"])){
-            $owner_id = $_GET["owner_id"];
+        if (isset($this->request)){
+            $getParams = $this->request->getGetParams();
+            $owner_id = $getParams['owner_id'];
         }
         else {
             $owner_id = $_SESSION["logged_user"]["id"];
@@ -205,9 +209,10 @@ class VideoController{
         }
     }
 
-    public function getById($id=null){
-        if (isset ($_GET["id"])){
-            $id = $_GET["id"];
+    public function getById(){
+        if (isset($this->request)){
+            $getParams = $this->request->getGetParams();
+            $id = $getParams['id'];
         }
         if (empty($id)){
             throw new InvalidArgumentException("Invalid arguments.");
