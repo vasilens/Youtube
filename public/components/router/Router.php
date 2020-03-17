@@ -14,9 +14,9 @@ class Router
     const CONTROLLER_DIR = '\\controller\\';
     const VIEW_ROUTER = 'view';
     /**
-     * @var array
+     * @var Request
      */
-    protected $request;
+    private $request;
 
     public function __construct(Request $request)
     {
@@ -30,9 +30,9 @@ class Router
      */
     public function route($route, $classAndMethod)
     {
-        $reqUri = $this->request->getRequestUri();
-        $dynamicRoute = preg_match(self::REGEX, $reqUri);
-        $arrayUri = explode(self::URI_DELIMITER, $reqUri);
+        $requestUri = $this->request->getRequestUri();
+        $dynamicRoute = preg_match(self::REGEX, $requestUri);
+        $arrayUri = explode(self::URI_DELIMITER, $requestUri);
 
         switch ($dynamicRoute) {
             case true:
@@ -52,12 +52,14 @@ class Router
                 }
                 break;
             case false:
-                if ($route === $reqUri) {
+                if ($route === $requestUri) {
                     $classAndMethodArray = explode(self::CLASS_AND_METHOD_DELIMITER, $classAndMethod);
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
                     $controller = new $className;
-                    $arrayUri[1] == self::VIEW_ROUTER ? $controller->$method($arrayUri[2]) : $controller->$method();
+                    $arrayUri[1] == self::VIEW_ROUTER ?
+                    $controller->$method($arrayUri[2]) :
+                    $controller->$method($this->request);
                     die;
                 }
         }

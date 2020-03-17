@@ -5,12 +5,12 @@ namespace components\router\http;
 class Request
 {
     /**
-     * @var string
+     * @var array
      */
     public $postParams;
 
     /**
-     * @var string
+     * @var array
      */
     public $getParams;
 
@@ -36,7 +36,7 @@ class Request
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getPostParams()
     {
@@ -44,7 +44,7 @@ class Request
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getGetParams()
     {
