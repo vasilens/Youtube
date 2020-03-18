@@ -47,8 +47,8 @@ class Router
                     $classAndMethodArray = explode(self::CLASS_AND_METHOD_DELIMITER, $classAndMethod);
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
-                    $controller = new $className;
-                    $controller->$method($this->request);
+                    $controller = new $className($this->request);
+                    $controller->$method();
                     die;
                 }
                 break;
@@ -57,10 +57,10 @@ class Router
                     $classAndMethodArray = explode(self::CLASS_AND_METHOD_DELIMITER, $classAndMethod);
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
-                    $controller = new $className;
+                    $controller = new $className($this->request);
                     $arrayUri[1] == self::VIEW_ROUTER ?
                         $controller->$method($arrayUri[2]) :
-                        $controller->$method($this->request);
+                        $controller->$method();
                     die;
                 }
         }
