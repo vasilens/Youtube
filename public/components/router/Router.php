@@ -3,6 +3,7 @@
 namespace router;
 
 use components\router\http\Request;
+use exceptions\AuthorizationException;
 use exceptions\InvalidArgumentException;
 
 class Router
@@ -26,15 +27,16 @@ class Router
     /**
      * @param string $route
      * @param string $classAndMethod
+     * @param bool $authenticate
      *
      * @return mixed
+     * @throws AuthorizationException
      */
-    public function route($route, $classAndMethod)
+    public function route($route, $classAndMethod, $authenticate = false)
     {
         $requestUri = $this->request->getRequestUri();
         $dynamicRoute = preg_match(self::REGEX, $requestUri);
         $arrayUri = explode(self::URI_DELIMITER, $requestUri);
-
         switch ($dynamicRoute) {
             case true:
                 foreach ($arrayUri as $key => $value) {
@@ -48,6 +50,11 @@ class Router
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
                     $controller = new $className($this->request);
+                    if ($authenticate) {
+                        var_dump($route);
+                        var_dump($authenticate);
+                        $this->authenticate();
+                    }
                     $controller->$method();
                     die;
                 }
@@ -64,5 +71,12 @@ class Router
                     die;
                 }
         }
+    }
+
+    public function authenticate()
+    {
+     if (!isset($_SESSION['logged_user'])) {
+         throw new AuthorizationException('Requires authorisation!');
+     }
     }
 }

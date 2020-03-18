@@ -325,11 +325,11 @@ class UserController extends AbstractController {
         $dao->unfollowUser($follower_id, $followed_id);
     }
 
-    public function isReacting()
+    public function isReacting($user_id, $video_id)
     {
         $getParams = $this->request->getGetParams();
-        if (isset($getParams['id']) && isset($_SESSION['logged_user']['id'])) {
-            $video_id = $getParams["id"];
+        if (isset($getParams['video_id']) && isset($_SESSION['logged_user']['id'])) {
+            $video_id = $getParams["video_id"];
             $user_id = $_SESSION["logged_user"]["id"];
         }
         if (empty($user_id) || empty($video_id)) {
@@ -342,8 +342,8 @@ class UserController extends AbstractController {
     public function reactVideo()
     {
         $getParams = $this->request->getGetParams();
-        if (isset($getParams["id"]) && isset($getParams["status"])) {
-            $video_id = $getParams["id"];
+        if (isset($getParams["video_id"]) && isset($getParams["status"])) {
+            $video_id = $getParams["video_id"];
             $status = $getParams["status"];
         }
         $user_id = $_SESSION["logged_user"]["id"];
@@ -372,7 +372,7 @@ class UserController extends AbstractController {
             $userdao->reactVideo($user_id, $video_id, 1 - $isReacting);
         }
         $arr = [];
-        $arr["stat"] = $this->isReacting();
+        $arr["stat"] = $this->isReacting($user_id, $video_id);
         $arr["likes"] = $videodao->getReactions($video_id, 1);
         $arr["dislikes"] = $videodao->getReactions($video_id, 0);
         echo json_encode($arr);
