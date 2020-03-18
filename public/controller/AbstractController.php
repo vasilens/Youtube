@@ -12,7 +12,6 @@ abstract class AbstractController
     protected $request;
 
     /**
-     * AbstractController constructor.
      * @param Request $request
      */
     public function __construct(Request $request)
