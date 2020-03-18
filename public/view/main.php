@@ -62,7 +62,7 @@ if (isset($orderby)){
                 echo "<tr><td><img style='border-radius: 50%;' alt='No photo' width='100px' src='";
                 echo $user['avatar_url'];
                 echo "'></td>";
-                echo "<td><b><a href='?target=user&action=getById&id=" . $user["id"] . "'>" . $user['username'];
+                echo "<td><b><a href='/user/profile/" . $user["id"] . "'>" . $user['username'];
                 echo "</b></td></tr></a>";
                 echo "<tr><td>Joined on: ";
                 echo $user['registration_date'];

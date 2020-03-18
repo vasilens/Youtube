@@ -14,7 +14,7 @@ if (isset($user)) {
     echo "Name: " . $user["name"] . "<br>";
     echo "Registered on: " . $user["registration_date"] . "<br>";
     if ($user["id"] == $user_id){
-        echo "<a href='?target=view&action=viewRouter&view=editProfile'><button>Edit profile</button></a><br>";
+        echo "<a href='/view/editProfile'><button>Edit profile</button></a><br>";
     }
     elseif ($user_id) {
         if ($user["isFollowed"]) {

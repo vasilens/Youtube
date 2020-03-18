@@ -6,7 +6,7 @@ $user = $_SESSION['logged_user'];
 require_once "header.php";
 require_once "navigation.php";
 ?>
-<form action="?target=user&action=edit" method="post" enctype="multipart/form-data">
+<form action="/user/edit" method="post" enctype="multipart/form-data">
     <table>
         <tr>
             <td><label for="username"><b>Username:</b></label></td>
