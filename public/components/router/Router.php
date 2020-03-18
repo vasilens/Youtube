@@ -4,7 +4,6 @@ namespace router;
 
 use components\router\http\Request;
 use exceptions\AuthorizationException;
-use exceptions\InvalidArgumentException;
 
 class Router
 {
@@ -51,8 +50,6 @@ class Router
                     $method = $classAndMethodArray[1];
                     $controller = new $className($this->request);
                     if ($authenticate) {
-                        var_dump($route);
-                        var_dump($authenticate);
                         $this->authenticate();
                     }
                     $controller->$method();
@@ -65,6 +62,9 @@ class Router
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
                     $controller = new $className($this->request);
+                    if ($authenticate) {
+                        $this->authenticate();
+                    }
                     $arrayUri[1] == self::VIEW_ROUTER ?
                         $controller->$method($arrayUri[2]) :
                         $controller->$method();
