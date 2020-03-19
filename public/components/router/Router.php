@@ -4,6 +4,7 @@ namespace router;
 
 use components\router\http\Request;
 use exceptions\AuthorizationException;
+use components\Authenticate;
 
 class Router
 {
@@ -18,9 +19,19 @@ class Router
      */
     private $request;
 
-    public function __construct(Request $request)
+    /**
+     * @var Authenticate
+     */
+    private $authenticate;
+
+    /**
+     * @param Request $request
+     * @param Authenticate $authenticate
+     */
+    public function __construct(Request $request, Authenticate $authenticate)
     {
         $this->request = $request;
+        $this->authenticate = $authenticate;
     }
 
     /**
@@ -50,7 +61,7 @@ class Router
                     $method = $classAndMethodArray[1];
                     $controller = new $className($this->request);
                     if ($authenticate) {
-                        $this->authenticate();
+                        $this->authenticate->authenticate();
                     }
                     $controller->$method();
                     die;
@@ -63,7 +74,7 @@ class Router
                     $method = $classAndMethodArray[1];
                     $controller = new $className($this->request);
                     if ($authenticate) {
-                        $this->authenticate();
+                        $this->authenticate->authenticate();
                     }
                     $arrayUri[1] == self::VIEW_ROUTER ?
                         $controller->$method($arrayUri[2]) :
@@ -71,12 +82,5 @@ class Router
                     die;
                 }
         }
-    }
-
-    public function authenticate()
-    {
-     if (!isset($_SESSION['logged_user'])) {
-         throw new AuthorizationException('Requires authorisation!');
-     }
     }
 }

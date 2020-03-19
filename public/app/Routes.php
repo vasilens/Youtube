@@ -2,8 +2,9 @@
 
 use router\Router;
 use components\router\http\Request;
+use components\Authenticate;
 
-$router = new Router(new Request());
+$router = new Router(new Request(), new Authenticate());
 
 $router->route('/', 'VideoController@getAll');
 $router->route('/video/upload', 'VideoController@upload', true);
@@ -12,7 +13,7 @@ $router->route('/video/edit/{id}', "VideoController@loadEdit", true);
 $router->route('/video/edit', 'VideoController@edit', true);
 $router->route('/video/{id}', 'VideoController@getById');
 $router->route('/trending', 'VideoController@getTrending');
-$router->route('/history', 'VideoController@getHistory');
+$router->route('/history', 'VideoController@getHistory', true);
 $router->route('/watchlater', 'VideoController@getWatchLater');
 $router->route('/likedvideos', 'VideoController@getLikedVideos');
 $router->route('/library/{id}', 'VideoController@getByOwnerId', true);
