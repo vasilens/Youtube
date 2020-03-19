@@ -83,7 +83,7 @@ require_once "navigation.php";
                     "</span>)<img src='../styles/images/dislikeImg.png' style='height: 30px' id='dislike-comment" . $comment["id"] . "' onclick='dislikeComment(" . $comment["id"] .
                     ")'>(<span id='comment" . $comment["id"] . "-dislikes'>" . $comment["dislikes"] . "</span>)";
                 if ($comment["owner_id"] == $user_id){
-                    echo "<img style='height: 20px;margin-left: 5px;' src='styles/images/deleteIcon.png' id='delete-comment' onclick='deleteComment(" . $comment["id"] .
+                    echo "<img style='height: 20px;margin-left: 5px;' src='../styles/images/deleteIcon.png' id='delete-comment' onclick='deleteComment(" . $comment["id"] .
                         ")'></button>";
                 }
                 echo "</td></tr>";
