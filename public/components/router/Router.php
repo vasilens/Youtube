@@ -20,29 +20,20 @@ class Router
     private $request;
 
     /**
-     * @var Authenticate
-     */
-    private $authenticate;
-
-    /**
      * @param Request $request
-     * @param Authenticate $authenticate
      */
-    public function __construct(Request $request, Authenticate $authenticate)
+    public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->authenticate = $authenticate;
     }
 
     /**
      * @param string $route
      * @param string $classAndMethod
-     * @param bool $authenticate
      *
      * @return mixed
-     * @throws AuthorizationException
      */
-    public function route($route, $classAndMethod, $authenticate = false)
+    public function route($route, $classAndMethod)
     {
         $requestUri = $this->request->getRequestUri();
         $dynamicRoute = preg_match(self::REGEX, $requestUri);
@@ -58,12 +49,10 @@ class Router
                 if ($route === $uri) {
                     $classAndMethodArray = explode(self::CLASS_AND_METHOD_DELIMITER, $classAndMethod);
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
+                    var_dump($className);
                     $method = $classAndMethodArray[1];
-                    $controller = new $className($this->request);
-                    if ($authenticate) {
-                        $this->authenticate->authenticate();
-                    }
-                    $controller->$method();
+                    $route = new Route($className, $method);
+                    $route->execute();
                     die;
                 }
                 break;
@@ -72,10 +61,8 @@ class Router
                     $classAndMethodArray = explode(self::CLASS_AND_METHOD_DELIMITER, $classAndMethod);
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
+                    $route = new Route($className, $method);
                     $controller = new $className($this->request);
-                    if ($authenticate) {
-                        $this->authenticate->authenticate();
-                    }
                     $arrayUri[1] == self::VIEW_ROUTER ?
                         $controller->$method($arrayUri[2]) :
                         $controller->$method();
