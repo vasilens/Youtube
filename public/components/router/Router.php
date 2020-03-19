@@ -73,6 +73,9 @@ class Router
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
                     $controller = new $className($this->request);
+                    if ($authenticate) {
+                        $this->authenticate->authenticate();
+                    }
                     $arrayUri[1] == self::VIEW_ROUTER ?
                         $controller->$method($arrayUri[2]) :
                         $controller->$method();

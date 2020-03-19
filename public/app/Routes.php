@@ -24,7 +24,7 @@ $router->route('/user/register', 'UserController@register');
 $router->route('/user/edit', 'UserController@edit', true);
 $router->route('/user/logout', 'UserController@logout', true);
 $router->route('/user/profile/{id}', 'UserController@getById', true);
-$router->route('/subscriptions/{id}', 'UserController@subscriptions', true);
+$router->route('/subscriptions', 'UserController@subscriptions', true);
 $router->route('/user/follow/{id}', 'UserController@follow', true);
 $router->route('/user/unfollow/{id}', 'UserController@unfollow', true);
 $router->route('/user/followed/{id}', 'UserController@clickedUser', true);

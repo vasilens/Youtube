@@ -44,15 +44,10 @@ class PlaylistController extends AbstractController
 
     public function getMyPlaylists()
     {
-        if (isset($_SESSION["logged_user"]["id"])) {
-            $owner_id = $_SESSION["logged_user"]["id"];
-            $dao = PlaylistDAO::getInstance();
-            $playlists = $dao->getAllByUserId($owner_id);
-            include_once "view/playlists.php";
-        } else {
-            include_once "view/playlists.php";
-            echo "<h3>Login to view playlists!</h3>";
-        }
+        $owner_id = $_SESSION["logged_user"]["id"];
+        $dao = PlaylistDAO::getInstance();
+        $playlists = $dao->getAllByUserId($owner_id);
+        include_once "view/playlists.php";
     }
 
     public function clickedPlaylist()
@@ -106,20 +101,9 @@ class PlaylistController extends AbstractController
 
     public function getMyPlaylistsJSON()
     {
-        $getParams = $this->request->getGetParams();
-        if (isset($getParams["owner_id"])) {
-            $owner_id = $getParams["owner_id"];
-        } else {
-            if (isset($_SESSION["logged_user"]["id"])) {
-                $owner_id = $_SESSION["logged_user"]["id"];
-            }
-        }
-        if (!empty($owner_id)) {
-            $dao = PlaylistDAO::getInstance();
-            $playlists = $dao->getAllByUserId($owner_id);
-            echo json_encode($playlists);
-        } else {
-            echo "<h3>Login to view playlists!</h3>";
-        }
+        $owner_id = $_SESSION["logged_user"]["id"];
+        $dao = PlaylistDAO::getInstance();
+        $playlists = $dao->getAllByUserId($owner_id);
+        echo json_encode($playlists);
     }
 }

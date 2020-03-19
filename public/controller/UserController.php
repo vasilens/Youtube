@@ -120,9 +120,6 @@ class UserController extends AbstractController {
     {
         $postParams = $this->request->getPostParams();
         if (isset($postParams['edit'])) {
-            if (!isset($_SESSION["logged_user"]["id"])) {
-                throw new AuthorizationException("Unauthorized user.");
-            }
             $error = false;
             $msg = "";
             if (!isset($postParams["username"]) || empty(trim($postParams["username"]))) {
@@ -267,9 +264,7 @@ class UserController extends AbstractController {
             throw new InvalidArgumentException("Invalid user.");
         }
         $user["id"] = $id;
-        if (isset($_SESSION["logged_user"]["id"])) {
-            $user["isFollowed"] = $userdao->isFollowing($_SESSION["logged_user"]["id"], $id);
-        }
+        $user["isFollowed"] = $userdao->isFollowing($_SESSION["logged_user"]["id"], $id);
         $videodao = VideoDAO::getInstance();
         $videos = $videodao->getByOwnerId($id);
         include_once "view/profile.php";
@@ -278,7 +273,7 @@ class UserController extends AbstractController {
     public function isFollowing()
     {
         $getParams = $this->request->getGetParams();
-        if (isset($getParams['id']) && isset($_SESSION['logged_user']['id'])) {
+        if (isset($getParams['id'])) {
             $followed_id = $getParams["id"];
             $follower_id = $_SESSION["logged_user"]["id"];
         }
@@ -292,7 +287,7 @@ class UserController extends AbstractController {
     public function follow()
     {
         $getParams = $this->request->getGetParams();
-        if (isset($getParams['id']) && isset($_SESSION['logged_user']['id'])) {
+        if (isset($getParams['id'])) {
             $followed_id = $getParams["id"];
             $follower_id = $_SESSION["logged_user"]["id"];
         }
@@ -328,7 +323,7 @@ class UserController extends AbstractController {
     public function isReacting($user_id, $video_id)
     {
         $getParams = $this->request->getGetParams();
-        if (isset($getParams['video_id']) && isset($_SESSION['logged_user']['id'])) {
+        if (isset($getParams['video_id'])) {
             $video_id = $getParams["video_id"];
             $user_id = $_SESSION["logged_user"]["id"];
         }
@@ -380,14 +375,7 @@ class UserController extends AbstractController {
 
     public function subscriptions()
     {
-        $getParams = $this->request->getGetParams();
-        if (isset($getParams['user_id'])) {
-            $user_id = $getParams['user_id'];
-        } else {
-            if (isset($_SESSION["logged_user"]["id"])) {
-                $user_id = $_SESSION["logged_user"]["id"];
-            }
-        }
+        $user_id = $_SESSION["logged_user"]["id"];
         if (isset($user_id) && !empty($user_id)) {
             $dao = UserDAO::getInstance();
             $userexists = $dao->getById($user_id);
@@ -396,11 +384,7 @@ class UserController extends AbstractController {
             }
             $subscriptions = $dao->getSubscriptions($user_id);
             include_once "view/subscriptions.php";
-        } else {
-            include_once "view/subscriptions.php";
-            echo "<h3>Login to view your subscriptions!</h3>";
         }
-
     }
     public function clickedUser()
     {
