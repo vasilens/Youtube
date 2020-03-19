@@ -29,7 +29,7 @@ class VideoController extends AbstractController
                 $error = true;
             } elseif (!isset($postParams["owner_id"]) || empty($postParams["owner_id"])) {
                 throw new InvalidArgumentException("Invalid arguments.");
-            } elseif ($postParams["owner_id"] != $_SESSION["logged_user"]["id"]) {
+            } elseif ($postParams["owner_id"]) {
                 throw new AuthorizationException("Unauthorized user.");
             } elseif (!isset($_FILES["video"]["tmp_name"])) {
                 $msg = "Video not uploaded";
@@ -169,12 +169,7 @@ class VideoController extends AbstractController
 
     public function getByOwnerId()
     {
-        $getParams = $this->request->getGetParams();
-        if (isset($getParams['owner_id'])) {
-            $owner_id = $getParams['owner_id'];
-        } else {
-            $owner_id = $_SESSION["logged_user"]["id"];
-        }
+        $owner_id = $_SESSION["logged_user"]["id"];
         if (empty($owner_id)) {
             include_once "view/main.php";
             echo "<h3>Login to like videos!</h3>";
@@ -207,6 +202,7 @@ class VideoController extends AbstractController
         if (isset($getParams['id'])) {
             $id = $getParams['id'];
         }
+
         if (empty($id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
@@ -219,16 +215,11 @@ class VideoController extends AbstractController
         $video["likes"] = $videodao->getReactions($id, 1);
         $video["dislikes"] = $videodao->getReactions($id, 0);
         $comments = $videodao->getComments($id);
-        if (isset($_SESSION["logged_user"]["id"])) {
-            $userdao = UserDAO::getInstance();
-            $user_id = $_SESSION["logged_user"]["id"];
-            $userdao->addToHistory($id, $user_id, date("Y-m-d H:i:s"));
-            $video["isFollowed"] = $userdao->isFollowing($user_id, $video["owner_id"]);
-            $video["isReacting"] = $userdao->isReacting($user_id, $id);
-        } else {
-            $video["isFollowed"] = false;
-            $video["isReacting"] = false;
-        }
+        $userdao = UserDAO::getInstance();
+        $user_id = $_SESSION["logged_user"]["id"];
+        $userdao->addToHistory($id, $user_id, date("Y-m-d H:i:s"));
+        $video["isFollowed"] = $userdao->isFollowing($user_id, $video["owner_id"]);
+        $video["isReacting"] = $userdao->isReacting($user_id, $id);
         include_once "view/video.php";
     }
 
@@ -261,15 +252,14 @@ class VideoController extends AbstractController
 
     public function getHistory()
     {
-        if (isset($_SESSION["logged_user"]["id"])) {
-            $user_id = $_SESSION["logged_user"]["id"];
-            $orderby = null;
-            if (isset($_GET["orderby"])) {
-                switch ($_GET["orderby"]) {
-                    case "date":
+        $user_id = $_SESSION["logged_user"]["id"];
+        $orderby = null;
+        if (isset($_GET["orderby"])) {
+            switch ($_GET["orderby"]) {
+                case "date":
                         $orderby = "ORDER BY date_uploaded";
                         break;
-                    case "likes":
+                case "likes":
                         $orderby = "ORDER BY likes";
                         break;
                 }
@@ -280,25 +270,16 @@ class VideoController extends AbstractController
             $dao = VideoDAO::getInstance();
             $videos = $dao->getHistory($user_id, $orderby);
             include_once "view/main.php";
-        } else {
-            include_once "view/main.php";
-            echo "<h3>Login to record history!</h3>";
-        }
         $action = "getHistory";
         $orderby = true;
     }
 
     public function getWatchLater()
     {
-        if (isset($_SESSION["logged_user"]["id"])) {
-            $user_id = $_SESSION["logged_user"]["id"];
-            $dao = PlaylistDAO::getInstance();
-            $videos = $dao->getWatchLater($user_id);
-            include_once "view/main.php";
-        } else {
-            include_once "view/main.php";
-            echo "<h3>Login to save videos for watching later!</h3>";
-        }
+        $user_id = $_SESSION["logged_user"]["id"];
+        $dao = PlaylistDAO::getInstance();
+        $videos = $dao->getWatchLater($user_id);
+        include_once "view/main.php";
         $action = "getWatchLater";
     }
 
