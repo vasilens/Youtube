@@ -30,7 +30,7 @@ $router->route('/user/unfollow/{id}', 'UserController@unfollow', true);
 $router->route('/user/followed/{id}', 'UserController@clickedUser', true);
 $router->route('/playlist/create', 'PlaylistController@create', true);
 $router->route('/playlist/show/{id}', 'PlaylistController@getMyPlaylistsJSON', true);
-$router->route('/myplaylists/{id}', 'PlaylistController@getMyPlaylists', true);
+$router->route('/myplaylists', 'PlaylistController@getMyPlaylists', true);
 $router->route('/playlist/{id}', 'PlaylistController@clickedPlaylist', true);
 $router->route('/playlist/{id}/video/{id}', 'PlaylistController@addToPlaylist', true);
 $router->route('/search', 'SearchController@search');

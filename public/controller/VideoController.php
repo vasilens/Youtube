@@ -216,10 +216,12 @@ class VideoController extends AbstractController
         $video["dislikes"] = $videodao->getReactions($id, 0);
         $comments = $videodao->getComments($id);
         $userdao = UserDAO::getInstance();
-        $user_id = $_SESSION["logged_user"]["id"];
-        $userdao->addToHistory($id, $user_id, date("Y-m-d H:i:s"));
-        $video["isFollowed"] = $userdao->isFollowing($user_id, $video["owner_id"]);
-        $video["isReacting"] = $userdao->isReacting($user_id, $id);
+        if (isset($_SESSION['logged_user'])) {
+            $user_id = $_SESSION["logged_user"]["id"];
+            $userdao->addToHistory($id, $user_id, date("Y-m-d H:i:s"));
+        }
+        $video["isFollowed"] = $userdao->isFollowing(null,$video["owner_id"]);
+        $video["isReacting"] = $userdao->isReacting(null, $id);
         include_once "view/video.php";
     }
 
