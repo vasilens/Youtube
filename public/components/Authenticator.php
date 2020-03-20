@@ -1,13 +1,14 @@
 <?php
 
-
 namespace components;
-
 
 use exceptions\AuthorizationException;
 
-class Authenticate
+class Authenticator
 {
+    /**
+     * @throws AuthorizationException
+     */
     public function authenticate()
     {
         if (!isset($_SESSION['logged_user'])) {

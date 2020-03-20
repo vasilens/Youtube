@@ -9,6 +9,10 @@ use model\PlaylistDAO;
 
 class PlaylistController extends AbstractController
 {
+    /**
+     * @throws AuthorizationException
+     * @throws InvalidArgumentException
+     */
     public function create()
     {
         $postParams = $this->request->getPostParams();
@@ -16,8 +20,11 @@ class PlaylistController extends AbstractController
             $error = false;
             $msg = "";
             if (!isset($postParams['title']) || empty(trim($postParams["title"]))) {
+
                 include_once "view/createPlaylist.php";
+
                 echo "Title is empty";
+
                 return;
             }
             if (!isset($postParams["owner_id"]) || empty($postParams["owner_id"])) {
@@ -33,9 +40,11 @@ class PlaylistController extends AbstractController
             $playlist->setTitle($title);
             $playlist->setOwnerId($ownerId);
             $playlist->setDateCreated($date_created);
-            $dao = PlaylistDAO::getInstance();
-            $dao->create($playlist);
+            $playlistDao = PlaylistDAO::getInstance();
+            $playlistDao->create($playlist);
+
             include_once "view/playlists.php";
+
             echo "Created successfully!";
         } else {
             throw new InvalidArgumentException("Invalid arguments.");
@@ -45,11 +54,15 @@ class PlaylistController extends AbstractController
     public function getMyPlaylists()
     {
         $ownerId = $_SESSION["logged_user"]["id"];
-        $dao = PlaylistDAO::getInstance();
-        $playlists = $dao->getAllByUserId($ownerId);
+        $playlistDao = PlaylistDAO::getInstance();
+        $playlists = $playlistDao->getAllByUserId($ownerId);
+
         include_once "view/playlists.php";
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function clickedPlaylist()
     {
         $getParams = $this->request->getGetParams();
@@ -59,15 +72,20 @@ class PlaylistController extends AbstractController
         if (empty($playlistId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $dao = PlaylistDAO::getInstance();
-        $exists = $dao->existsPlaylist($playlistId);
+        $playlistDao = PlaylistDAO::getInstance();
+        $exists = $playlistDao->existsPlaylist($playlistId);
         if (!$exists) {
             throw new InvalidArgumentException("Invalid playlist.");
         }
-        $videos = $dao->getVideosFromPlaylist($playlistId);
+        $videos = $playlistDao->getVideosFromPlaylist($playlistId);
+
         include_once "view/playlists.php";
     }
 
+    /**
+     * @throws AuthorizationException
+     * @throws InvalidArgumentException
+     */
     public function addToPlaylist()
     {
         $getParams = $this->request->getGetParams();
@@ -78,32 +96,33 @@ class PlaylistController extends AbstractController
         if (empty($playlistId) || empty($videoId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $dao = PlaylistDAO::getInstance();
-        $playlist = $dao->existsPlaylist($playlistId);
+        $playlistDao = PlaylistDAO::getInstance();
+        $playlist = $playlistDao->existsPlaylist($playlistId);
         if (!$playlist) {
             throw new InvalidArgumentException("Invalid playlist.");
             }
         if ($playlist["owner_id"] != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
-        $existsVideo = $dao->existsVideo($videoId);
+        $existsVideo = $playlistDao->existsVideo($videoId);
         if (!$existsVideo) {
             throw new InvalidArgumentException("Invalid video.");
         }
         $date = date("Y-m-d H:i:s");
-        $existsRecord = $dao->existsRecord($playlistId, $videoId);
+        $existsRecord = $playlistDao->existsRecord($playlistId, $videoId);
         if ($existsRecord) {
-            $dao->updateRecord($playlistId, $videoId, $date);
+            $playlistDao->updateRecord($playlistId, $videoId, $date);
         } else {
-            $dao->addToPlaylist($playlistId, $videoId, $date);
+            $playlistDao->addToPlaylist($playlistId, $videoId, $date);
         }
     }
 
     public function getMyPlaylistsJSON()
     {
         $ownerId = $_SESSION["logged_user"]["id"];
-        $dao = PlaylistDAO::getInstance();
-        $playlists = $dao->getAllByUserId($ownerId);
+        $playlistDao = PlaylistDAO::getInstance();
+        $playlists = $playlistDao->getAllByUserId($ownerId);
+
         echo json_encode($playlists);
     }
 }

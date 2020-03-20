@@ -1,6 +1,7 @@
 <?php
 
 namespace controller;
+
 include_once "fileHandler.php";
 
 use exceptions\AuthorizationException;
@@ -12,6 +13,11 @@ use model\VideoDAO;
 
 class VideoController extends AbstractController
 {
+    /**
+     * @throws AuthorizationException
+     * @throws InvalidArgumentException
+     * @throws \exceptions\InvalidFileException
+     */
     public function upload()
     {
         $postParams = $this->request->getPostParams();
@@ -36,13 +42,15 @@ class VideoController extends AbstractController
                 $error = true;
             }
             if ($error) {
-                $dao = VideoDAO::getInstance();
-                $categories = $dao->getCategories();
+                $videoDao = VideoDAO::getInstance();
+                $categories = $videoDao->getCategories();
+
                 include_once "view/upload.php";
+
                 echo $msg;
             } else {
-                $dao = VideoDAO::getInstance();
-                $categoryExists = $dao->getCategoryById($postParams["category_id"]);
+                $videoDao = VideoDAO::getInstance();
+                $categoryExists = $videoDao->getCategoryById($postParams["category_id"]);
                 if (!$categoryExists) {
                     throw new InvalidArgumentException("Invalid category.");
                 }
@@ -55,8 +63,10 @@ class VideoController extends AbstractController
                 $video->setDuration(0);
                 $video->setVideoUrl(uploadVideo("video", $_SESSION["logged_user"]["username"]));
                 $video->setThumbnailUrl(uploadImage("thumbnail", $_SESSION["logged_user"]["username"]));
-                $dao->add($video);
+                $videoDao->add($video);
+
                 include_once "view/main.php";
+
                 echo "Upload successfull.";
             }
         } else {
@@ -64,6 +74,12 @@ class VideoController extends AbstractController
         }
     }
 
+    /**
+     * @param null $id
+     *
+     * @throws AuthorizationException
+     * @throws InvalidArgumentException
+     */
     public function loadEdit($id=null)
     {
         $getParams = $this->request->getGetParams();
@@ -73,18 +89,24 @@ class VideoController extends AbstractController
         if (empty($id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $dao = VideoDAO::getInstance();
-        $video = $dao->getById($id);
+        $videoDao = VideoDAO::getInstance();
+        $video = $videoDao->getById($id);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
         }
         if ($video["owner_id"] != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
-        $categories = $dao->getCategories();
+        $categories = $videoDao->getCategories();
+
         include_once "view/editVideo.php";
     }
 
+    /**
+     * @throws AuthorizationException
+     * @throws InvalidArgumentException
+     * @throws \exceptions\InvalidFileException
+     */
     public function edit()
     {
         $postParams = $this->request->getPostParams();
@@ -108,19 +130,21 @@ class VideoController extends AbstractController
                 throw new AuthorizationException("Unauthorized user.");
             }
             if ($error) {
-                $dao = VideoDAO::getInstance();
-                $video = $dao->getById($postParams["id"]);
-                $categories = $dao->getCategories();
+                $videoDao = VideoDAO::getInstance();
+                $video = $videoDao->getById($postParams["id"]);
+                $categories = $videoDao->getCategories();
+
                 include_once "view/editVideo.php";
+
                 echo $msg;
             }
             if (!$error) {
-                $dao = VideoDAO::getInstance();
-                $categoryExists = $dao->getCategoryById($postParams["category_id"]);
+                $videoDao = VideoDAO::getInstance();
+                $categoryExists = $videoDao->getCategoryById($postParams["category_id"]);
                 if (!$categoryExists) {
                     throw new InvalidArgumentException("Invalid category.");
                 }
-                $getvideo = $dao->getById($postParams["id"]);
+                $getvideo = $videoDao->getById($postParams["id"]);
                 if (empty($getvideo)) {
                     throw new InvalidArgumentException("Invalid video.");
                 }
@@ -135,8 +159,10 @@ class VideoController extends AbstractController
                 if (!($video->getThumbnailUrl())) {
                     $video->setThumbnailUrl($postParams["thumbnail_url"]);
                 }
-                $dao->edit($video);
+                $videoDao->edit($video);
+
                 include_once "view/main.php";
+
                 echo "Edit successfull.";
             }
         } else {
@@ -144,6 +170,10 @@ class VideoController extends AbstractController
         }
     }
 
+    /**
+     * @throws AuthorizationException
+     * @throws InvalidArgumentException
+     */
     public function delete()
     {
         $getParams = $this->request->getGetParams();
@@ -154,16 +184,18 @@ class VideoController extends AbstractController
         if (empty($id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $dao = VideoDAO::getInstance();
-        $video = $dao->getById($id);
+        $videoDao = VideoDAO::getInstance();
+        $video = $videoDao->getById($id);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
         }
         if ($video["owner_id"] != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
-        $dao->delete($id, $ownerId);
+        $videoDao->delete($id, $ownerId);
+
         include_once "view/main.php";
+
         echo "Delete successful.";
     }
 
@@ -171,7 +203,9 @@ class VideoController extends AbstractController
     {
         $ownerId = $_SESSION["logged_user"]["id"];
         if (empty($ownerId)) {
+
             include_once "view/main.php";
+
             echo "<h3>Login to like videos!</h3>";
         } else {
             $orderby = null;
@@ -188,14 +222,18 @@ class VideoController extends AbstractController
                     $orderby .= " DESC";
                 }
             }
-            $dao = VideoDAO::getInstance();
-            $videos = $dao->getByOwnerId($ownerId, $orderby);
+            $videoDao = VideoDAO::getInstance();
+            $videos = $videoDao->getByOwnerId($ownerId, $orderby);
             $action = "getByOwnerId";
             $orderby = true;
+
             include_once "view/main.php";
         }
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function getById()
     {
         $getParams = $this->request->getGetParams();
@@ -206,81 +244,86 @@ class VideoController extends AbstractController
         if (empty($id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videodao = VideoDAO::getInstance();
-        $video = $videodao->getById($id);
+        $videoDao = VideoDAO::getInstance();
+        $video = $videoDao->getById($id);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
         }
-        $videodao->updateViews($id);
-        $video["likes"] = $videodao->getReactions($id, 1);
-        $video["dislikes"] = $videodao->getReactions($id, 0);
-        $comments = $videodao->getComments($id);
-        $userdao = UserDAO::getInstance();
+        $videoDao->updateViews($id);
+        $video["likes"] = $videoDao->getReactions($id, 1);
+        $video["dislikes"] = $videoDao->getReactions($id, 0);
+        $comments = $videoDao->getComments($id);
+        $userDao = UserDAO::getInstance();
         if (isset($_SESSION['logged_user'])) {
-            $user_id = $_SESSION["logged_user"]["id"];
-            $userdao->addToHistory($id, $user_id, date("Y-m-d H:i:s"));
+            $userId = $_SESSION["logged_user"]["id"];
+            $userDao->addToHistory($id, $userId, date("Y-m-d H:i:s"));
         }
-        $video["isFollowed"] = $userdao->isFollowing(null,$video["owner_id"]);
-        $video["isReacting"] = $userdao->isReacting(null, $id);
+        $video["isFollowed"] = $userDao->isFollowing(null,$video["owner_id"]);
+        $video["isReacting"] = $userDao->isReacting(null, $id);
+
         include_once "view/video.php";
     }
 
     public function getAll() {
-        $orderby = null;
+        $orderBy = null;
         if (isset($_GET["orderby"])) {
             switch ($_GET["orderby"]) {
-                case "date": $orderby = "ORDER BY date_uploaded";
+                case "date": $orderBy = "ORDER BY date_uploaded";
                 break;
-                case "likes": $orderby = "ORDER BY likes";
+                case "likes": $orderBy = "ORDER BY likes";
                 break;
             }
-            if (isset($_GET["desc"]) && $orderby) {
-                $orderby .= " DESC";
+            if (isset($_GET["desc"]) && $orderBy) {
+                $orderBy .= " DESC";
             }
         }
         $dao = VideoDAO::getInstance();
-        $videos = $dao->getAll($orderby);
+        $videos = $dao->getAll($orderBy);
         $action = "getAll";
-        $orderby = true;
+        $orderBy = true;
+
         include_once "view/main.php";
     }
 
     public function getTrending()
     {
-        $dao = VideoDAO::getInstance();
-        $videos = $dao->getMostWatched();
+        $videoDao = VideoDAO::getInstance();
+        $videos = $videoDao->getMostWatched();
+
         include_once "view/main.php";
     }
 
     public function getHistory()
     {
         $userId = $_SESSION["logged_user"]["id"];
-        $orderby = null;
+        $orderBy = null;
         if (isset($_GET["orderby"])) {
             switch ($_GET["orderby"]) {
                 case "date":
-                        $orderby = "ORDER BY date_uploaded";
+                        $orderBy = "ORDER BY date_uploaded";
                         break;
                 case "likes":
-                        $orderby = "ORDER BY likes";
+                        $orderBy = "ORDER BY likes";
                         break;
                 }
-                if (isset($_GET["desc"]) && $orderby) {
-                    $orderby .= " DESC";
+                if (isset($_GET["desc"]) && $orderBy) {
+                    $orderBy .= " DESC";
                 }
             }
-            $dao = VideoDAO::getInstance();
-            $videos = $dao->getHistory($userId, $orderby);
+            $videoDao = VideoDAO::getInstance();
+            $videos = $videoDao->getHistory($userId, $orderBy);
+
             include_once "view/main.php";
         $action = "getHistory";
-        $orderby = true;
+        $orderBy = true;
     }
 
     public function getWatchLater()
     {
         $userId = $_SESSION["logged_user"]["id"];
-        $dao = PlaylistDAO::getInstance();
-        $videos = $dao->getWatchLater($userId);
+        $videoDao = VideoDAO::getInstance();
+        $videos = $videoDao->getWatchLater($userId);
+
         include_once "view/main.php";
         $action = "getWatchLater";
     }
@@ -288,24 +331,25 @@ class VideoController extends AbstractController
     public function getLikedVideos()
     {
         $userId = $_SESSION["logged_user"]["id"];
-        $orderby = null;
+        $orderBy = null;
         if (isset($_GET["orderby"])) {
             switch ($_GET["orderby"]) {
                 case "date":
-                    $orderby = "ORDER BY date_uploaded";
+                    $orderBy = "ORDER BY date_uploaded";
                     break;
                 case "likes":
-                    $orderby = "ORDER BY likes";
+                    $orderBy = "ORDER BY likes";
                     break;
                 }
-                if (isset($_GET["desc"]) && $orderby) {
-                    $orderby .= " DESC";
+                if (isset($_GET["desc"]) && $orderBy) {
+                    $orderBy .= " DESC";
                 }
             }
-            $dao = VideoDAO::getInstance();
-            $videos = $dao->getLikedVideos($userId, $orderby);
+            $videoDao = VideoDAO::getInstance();
+            $videos = $videoDao->getLikedVideos($userId, $orderBy);
+
             include_once "view/main.php";
         $action = "getLikedVideos";
-        $orderby = true;
+        $orderBy = true;
     }
 }

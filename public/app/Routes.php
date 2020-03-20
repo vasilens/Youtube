@@ -2,9 +2,9 @@
 
 use router\Router;
 use components\router\http\Request;
-use components\Authenticate;
+use components\Authenticator;
 
-$router = new Router(new Request(), new Authenticate());
+$router = new Router(new Request(), new Authenticator());
 
 $router->route('/', 'VideoController@getAll');
 $router->route('/video/upload', 'VideoController@upload', true);

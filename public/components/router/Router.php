@@ -4,7 +4,7 @@ namespace router;
 
 use components\router\http\Request;
 use exceptions\AuthorizationException;
-use components\Authenticate;
+use components\Authenticator;
 
 class Router
 {
@@ -20,15 +20,15 @@ class Router
     private $request;
 
     /**
-     * @var Authenticate
+     * @var Authenticator
      */
     private $authenticate;
 
     /**
-     * @param Request $request
-     * @param Authenticate $authenticate
+     * @param Request       $request
+     * @param Authenticator $authenticate
      */
-    public function __construct(Request $request, Authenticate $authenticate)
+    public function __construct(Request $request, Authenticator $authenticate)
     {
         $this->request = $request;
         $this->authenticate = $authenticate;
@@ -37,9 +37,10 @@ class Router
     /**
      * @param string $route
      * @param string $classAndMethod
-     * @param bool $authenticate
+     * @param bool   $authenticate
      *
      * @return mixed
+     *
      * @throws AuthorizationException
      */
     public function route($route, $classAndMethod, $authenticate = false)
@@ -47,6 +48,7 @@ class Router
         $requestUri = $this->request->getRequestUri();
         $dynamicRoute = preg_match(self::REGEX, $requestUri);
         $arrayUri = explode(self::URI_DELIMITER, $requestUri);
+
         switch ($dynamicRoute) {
             case true:
                 foreach ($arrayUri as $key => $value) {

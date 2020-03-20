@@ -15,6 +15,6 @@
         "phpmd/phpmd": "^2.7"
     },
     "require": {
-    "ext-json": "*"
+        "ext-json": "*"
   }
 }

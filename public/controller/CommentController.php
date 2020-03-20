@@ -25,8 +25,8 @@ class CommentController extends AbstractController
         if (empty($postParams["content"])) {
             throw new InvalidArgumentException("Comment is empty.");
         }
-        $dao = VideoDAO::getInstance();
-        $video = $dao->getById($postParams["video_id"]);
+        $videoDao = VideoDAO::getInstance();
+        $video = $videoDao->getById($postParams["video_id"]);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
         }
@@ -35,8 +35,9 @@ class CommentController extends AbstractController
         $comment->setVideoId($postParams["video_id"]);
         $comment->setOwnerId($postParams["owner_id"]);
         $comment->setDate(date("Y-m-d H:i:s"));
-        $comment_id = $dao->addComment($comment);
-        $comment = $dao->getCommentById($comment_id);
+        $comment_id = $videoDao->addComment($comment);
+        $comment = $videoDao->getCommentById($comment_id);
+
         echo json_encode($comment);
     }
 
@@ -50,12 +51,12 @@ class CommentController extends AbstractController
         if (empty($commentId) || empty($ownerId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $dao = VideoDAO::getInstance();
-        $comment = $dao->getCommentById($commentId);
+        $videoDao = VideoDAO::getInstance();
+        $comment = $videoDao->getCommentById($commentId);
         if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
         }
-        $dao->deleteComment($commentId, $ownerId);
+        $videoDao->deleteComment($commentId, $ownerId);
     }
 
     public function isReactingComment()
@@ -68,8 +69,9 @@ class CommentController extends AbstractController
         if (empty($userId) || empty($commentId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $dao = UserDAO::getInstance();
-        return $dao->isReactingComment($userId, $commentId);
+        $userDao = UserDAO::getInstance();
+
+        return $userDao->isReactingComment($userId, $commentId);
     }
 
     public function react()
@@ -86,25 +88,26 @@ class CommentController extends AbstractController
         if ($status != 0 && $status != 1) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videodao = VideoDAO::getInstance();
-        $comment = $videodao->getCommentById($commentId);
+        $videoDao = VideoDAO::getInstance();
+        $comment = $videoDao->getCommentById($commentId);
         if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
         }
         $isReacting = $this->isReactingComment($userId, $commentId);
-        $userdao = UserDAO::getInstance();
+        $userDao = UserDAO::getInstance();
         if ($isReacting == -1) {//if there has been no reaction
-            $userdao->reactComment($userId, $commentId, $status);
+            $userDao->reactComment($userId, $commentId, $status);
         } elseif ($isReacting == $status) { //if liking liked or disliking disliked video
-            $userdao->unreactComment($userId, $commentId);
+            $userDao->unreactComment($userId, $commentId);
         } elseif ($isReacting != $status) { //if liking disliked or disliking liked video
-            $userdao->unreactComment($userId, $commentId);
-            $userdao->reactComment($userId, $commentId, 1 - $isReacting);
+            $userDao->unreactComment($userId, $commentId);
+            $userDao->reactComment($userId, $commentId, 1 - $isReacting);
         }
         $arr = [];
         $arr["stat"] = $this->isReactingComment();
-        $arr["likes"] = $userdao->getCommentReactions($commentId, 1);
-        $arr["dislikes"] = $userdao->getCommentReactions($commentId, 0);
+        $arr["likes"] = $userDao->getCommentReactions($commentId, 1);
+        $arr["dislikes"] = $userDao->getCommentReactions($commentId, 0);
+
         echo json_encode($arr);
     }
 }
