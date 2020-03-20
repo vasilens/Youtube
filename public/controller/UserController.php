@@ -274,115 +274,115 @@ class UserController extends AbstractController {
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams['id'])) {
-            $followed_id = $getParams["id"];
-            $follower_id = $_SESSION["logged_user"]["id"];
+            $followedId = $getParams["id"];
+            $followerId = $_SESSION["logged_user"]["id"];
         }
-        if (empty($follower_id) || empty($followed_id)) {
+        if (empty($followerId) || empty($followedId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
         $dao = UserDAO::getInstance();
-        return $dao->isFollowing($follower_id, $followed_id);
+        return $dao->isFollowing($followerId, $followedId);
     }
 
     public function follow()
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams['id'])) {
-            $followed_id = $getParams["id"];
-            $follower_id = $_SESSION["logged_user"]["id"];
+            $followedId = $getParams["id"];
+            $followerId = $_SESSION["logged_user"]["id"];
         }
-        if (empty($follower_id) || empty($followed_id)) {
+        if (empty($followerId) || empty($followedId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
         $dao = UserDAO::getInstance();
-        $user = $dao->getById($followed_id);
+        $user = $dao->getById($followedId);
         if (empty($user)) {
             throw new InvalidArgumentException("Invalid user.");
         }
-        $dao->followUser($follower_id, $followed_id);
+        $dao->followUser($followerId, $followedId);
     }
 
     public function unfollow()
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams['id'])) {
-            $followed_id = $getParams["id"];
-            $follower_id = $_SESSION["logged_user"]["id"];
+            $followedId = $getParams["id"];
+            $followerId = $_SESSION["logged_user"]["id"];
         }
-        if (empty($follower_id) || empty($followed_id)) {
+        if (empty($followerId) || empty($followedId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
         $dao = UserDAO::getInstance();
-        $user = $dao->getById($followed_id);
+        $user = $dao->getById($followedId);
         if (empty($user)) {
             throw new InvalidArgumentException("Invalid user.");
         }
-        $dao->unfollowUser($follower_id, $followed_id);
+        $dao->unfollowUser($followerId, $followedId);
     }
 
-    public function isReacting($user_id, $video_id)
+    public function isReacting($userId, $videoId)
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams['video_id'])) {
-            $video_id = $getParams["video_id"];
-            $user_id = $_SESSION["logged_user"]["id"];
+            $videoId = $getParams["video_id"];
+            $userId = $_SESSION["logged_user"]["id"];
         }
-        if (empty($user_id) || empty($video_id)) {
+        if (empty($userId) || empty($videoId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
         $dao = UserDAO::getInstance();
-        return $dao->isReacting($user_id, $video_id);
+        return $dao->isReacting($userId, $videoId);
     }
 
     public function reactVideo()
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams["video_id"]) && isset($getParams["status"])) {
-            $video_id = $getParams["video_id"];
+            $videoId = $getParams["video_id"];
             $status = $getParams["status"];
         }
-        $user_id = $_SESSION["logged_user"]["id"];
-        if (empty($video_id)) {
+        $userId = $_SESSION["logged_user"]["id"];
+        if (empty($videoId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        if (empty($user_id)) {
+        if (empty($userId)) {
             throw new InvalidArgumentException("Unauthorized user.");
         }
         if ($status != 1 && $status != 0) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
         $videodao = VideoDAO::getInstance();
-        $video = $videodao->getById($video_id);
+        $video = $videodao->getById($videoId);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
         }
-        $isReacting = $this->isReacting($user_id, $video_id);
+        $isReacting = $this->isReacting($userId, $videoId);
         $userdao = UserDAO::getInstance();
         if ($isReacting == -1) {//if there has been no reaction
-            $userdao->reactVideo($user_id, $video_id, $status);
+            $userdao->reactVideo($userId, $videoId, $status);
         } elseif ($isReacting == $status) { //if liking liked or unliking unliked video
-            $userdao->unreactVideo($user_id, $video_id);
+            $userdao->unreactVideo($userId, $videoId);
         } elseif ($isReacting != $status) { //if liking disliked or disliking liked video
-            $userdao->unreactVideo($user_id, $video_id);
-            $userdao->reactVideo($user_id, $video_id, 1 - $isReacting);
+            $userdao->unreactVideo($userId, $videoId);
+            $userdao->reactVideo($userId, $videoId, 1 - $isReacting);
         }
         $arr = [];
-        $arr["stat"] = $this->isReacting($user_id, $video_id);
-        $arr["likes"] = $videodao->getReactions($video_id, 1);
-        $arr["dislikes"] = $videodao->getReactions($video_id, 0);
+        $arr["stat"] = $this->isReacting($userId, $videoId);
+        $arr["likes"] = $videodao->getReactions($videoId, 1);
+        $arr["dislikes"] = $videodao->getReactions($videoId, 0);
         echo json_encode($arr);
     }
 
     public function subscriptions()
     {
-        $user_id = $_SESSION["logged_user"]["id"];
-        if (isset($user_id) && !empty($user_id)) {
+        $userId = $_SESSION["logged_user"]["id"];
+        if (isset($userId) && !empty($userId)) {
             $dao = UserDAO::getInstance();
-            $userexists = $dao->getById($user_id);
+            $userexists = $dao->getById($userId);
             if (empty($userexists)) {
                 throw new InvalidArgumentException("Invalid user.");
             }
-            $subscriptions = $dao->getSubscriptions($user_id);
+            $subscriptions = $dao->getSubscriptions($userId);
             include_once "view/subscriptions.php";
         }
     }
@@ -390,10 +390,10 @@ class UserController extends AbstractController {
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams['id'])) {
-            $followed_id = $getParams['id'];
+            $followedId = $getParams['id'];
         }
         $dao = UserDAO::getInstance();
-        $user = $dao->getFollowedUser($followed_id);
+        $user = $dao->getFollowedUser($followedId);
         if (empty($user)) {
             throw new InvalidArgumentException("Invalid user.");
         }

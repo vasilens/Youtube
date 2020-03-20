@@ -16,7 +16,7 @@ $router->route('/trending', 'VideoController@getTrending');
 $router->route('/history', 'VideoController@getHistory', true);
 $router->route('/watchlater', 'VideoController@getWatchLater', true);
 $router->route('/likedvideos', 'VideoController@getLikedVideos', true);
-$router->route('/library/{id}', 'VideoController@getByOwnerId', true);
+$router->route('/library', 'VideoController@getByOwnerId', true);
 $router->route('/video/user/{id}', 'VideoController@getByOwnerId', true);
 $router->route('/video/{id}/react/{id}', 'UserController@reactVideo', true);
 $router->route('/user/login', 'UserController@login');

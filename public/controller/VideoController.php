@@ -150,7 +150,7 @@ class VideoController extends AbstractController
         if (isset($getParams['id'])) {
             $id = $getParams['id'];
         }
-        $owner_id = $_SESSION["logged_user"]["id"];
+        $ownerId = $_SESSION["logged_user"]["id"];
         if (empty($id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
@@ -162,15 +162,15 @@ class VideoController extends AbstractController
         if ($video["owner_id"] != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
-        $dao->delete($id, $owner_id);
+        $dao->delete($id, $ownerId);
         include_once "view/main.php";
         echo "Delete successful.";
     }
 
     public function getByOwnerId()
     {
-        $owner_id = $_SESSION["logged_user"]["id"];
-        if (empty($owner_id)) {
+        $ownerId = $_SESSION["logged_user"]["id"];
+        if (empty($ownerId)) {
             include_once "view/main.php";
             echo "<h3>Login to like videos!</h3>";
         } else {
@@ -189,7 +189,7 @@ class VideoController extends AbstractController
                 }
             }
             $dao = VideoDAO::getInstance();
-            $videos = $dao->getByOwnerId($owner_id, $orderby);
+            $videos = $dao->getByOwnerId($ownerId, $orderby);
             $action = "getByOwnerId";
             $orderby = true;
             include_once "view/main.php";
@@ -254,7 +254,7 @@ class VideoController extends AbstractController
 
     public function getHistory()
     {
-        $user_id = $_SESSION["logged_user"]["id"];
+        $userId = $_SESSION["logged_user"]["id"];
         $orderby = null;
         if (isset($_GET["orderby"])) {
             switch ($_GET["orderby"]) {
@@ -270,7 +270,7 @@ class VideoController extends AbstractController
                 }
             }
             $dao = VideoDAO::getInstance();
-            $videos = $dao->getHistory($user_id, $orderby);
+            $videos = $dao->getHistory($userId, $orderby);
             include_once "view/main.php";
         $action = "getHistory";
         $orderby = true;
@@ -278,16 +278,16 @@ class VideoController extends AbstractController
 
     public function getWatchLater()
     {
-        $user_id = $_SESSION["logged_user"]["id"];
+        $userId = $_SESSION["logged_user"]["id"];
         $dao = PlaylistDAO::getInstance();
-        $videos = $dao->getWatchLater($user_id);
+        $videos = $dao->getWatchLater($userId);
         include_once "view/main.php";
         $action = "getWatchLater";
     }
 
     public function getLikedVideos()
     {
-        $user_id = $_SESSION["logged_user"]["id"];
+        $userId = $_SESSION["logged_user"]["id"];
         $orderby = null;
         if (isset($_GET["orderby"])) {
             switch ($_GET["orderby"]) {
@@ -303,7 +303,7 @@ class VideoController extends AbstractController
                 }
             }
             $dao = VideoDAO::getInstance();
-            $videos = $dao->getLikedVideos($user_id, $orderby);
+            $videos = $dao->getLikedVideos($userId, $orderby);
             include_once "view/main.php";
         $action = "getLikedVideos";
         $orderby = true;
