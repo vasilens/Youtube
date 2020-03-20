@@ -62,20 +62,6 @@ class PlaylistDAO extends BaseDao {
         return $rows;
     }
 
-    public function getWatchLater($user_id){
-        $pdo = $this->getPDO();
-        $sql = "SELECT v.id, v.title, v.date_uploaded, p.playlist_title, u.username, v.views, v.thumbnail_url FROM videos AS v 
-                JOIN users AS u ON v.owner_id = u.id
-                JOIN added_to_playlist AS atp ON v.id = atp.video_id
-                JOIN playlists AS p ON p.id = atp.playlist_id
-                WHERE p.playlist_title = 'Watch Later' AND p.owner_id = ?
-                ORDER BY atp.date_added;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($user_id));
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $rows;
-    }
-
     public function addToPlaylist($playlist_id, $video_id, $date){
         $pdo = $this->getPDO();
         $sql = "INSERT INTO added_to_playlist (playlist_id, video_id, date_added) VALUES (?, ?, ?);";

@@ -6,12 +6,16 @@ use model\VideoDAO;
 
 class ViewController
 {
+    /**
+     * @param $view
+     */
     public function viewRouter($view)
     {
         if ($view== 'upload') {
-            $dao = VideoDAO::getInstance();
-            $categories = $dao->getCategories();
+            $videoDao = VideoDAO::getInstance();
+            $categories = $videoDao->getCategories();
         }
+
         include_once "view/$view.php";
     }
 }
