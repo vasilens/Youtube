@@ -91,7 +91,6 @@ class AbstractDAO
     /**
      * @param string $table
      * @param array $columns
-     * @param array $values
      * @param array $holders
      *
      * @return string
