@@ -89,29 +89,51 @@ class AbstractDAO
     }
 
     /**
-     * @param string $sql
-     * @param array $params
+     * @param string $table
+     * @param array $columns
+     * @param array $values
+     * @param array $holders
+     *
+     * @return string
      */
-    public function insert($sql, $params = [])
+    public function createInsertQuery($table, array $columns, array $holders)
     {
-        $this->prepareAndExecute($sql, $params);
+        $columns = implode(', ', array_values($columns));
+        $holders = implode(', ', $holders);
+
+        return "INSERT INTO $table ($columns) VALUES ($holders)";;
     }
 
     /**
-     * @param string $sql
-     * @param array $params
+     * @param string $table
+     * @param array $columns
+     *
+     * @return string
      */
-    public function delete($sql, $params = [])
+    public function createDeleteQuery($table, array $columns)
     {
-        $this->prepareAndExecute($sql, $params);
-    }
+        $columns = implode(' = ? AND', array_values($columns));
+        $columns .= ' = ? AND';
 
+        return "DELETE FROM $table WHERE $columns";
+    }
     /**
-     * @param string $sql
-     * @param array $params
+     * @param string $table
+     * @param array $columns
+     * @param null | array
+     *
+     * @return string
      */
-    public function update($sql, $params = [])
+    public function createUpdateQuery($table, array $columns, $param = null)
     {
-        $this->prepareAndExecute($sql, $params);
+        $columns = implode(' = ?,', array_values($columns));
+        $columns .= ' = ?';
+        if ($param != null) {
+
+            return "UPDATE $table SET $columns WHERE $param = ?;";
+        } else {
+
+            return "UPDATE $table SET $columns";
+        }
     }
 }
