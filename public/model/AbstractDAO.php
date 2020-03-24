@@ -10,6 +10,10 @@ abstract class AbstractDAO
      * @var $pdo
      */
     protected $pdo;
+
+    /**
+     * @var \PDOStatement
+     */
     protected $statement;
 
     /**
@@ -106,8 +110,11 @@ abstract class AbstractDAO
         $columns = implode(', ', array_keys($params));
         $holders = implode(', :', array_keys($params));
 
-        return "INSERT INTO $this->table ($columns) 
-                VALUES (:$holders);";
+        return "INSERT INTO 
+                  $this->table 
+                  ($columns) 
+                VALUES 
+                  (:$holders);";
     }
 
     /**
@@ -122,8 +129,10 @@ abstract class AbstractDAO
         }
         $columns = implode(' AND ', array_keys($params));
 
-        return "DELETE FROM $this->table 
-                WHERE $columns;";
+        return "DELETE FROM 
+                  $this->table 
+                WHERE 
+                  $columns;";
     }
 
     /**
@@ -137,8 +146,11 @@ abstract class AbstractDAO
         $params = implode(', :', array_keys($params));
         $conditions = implode(', :', array_keys($conditions));
 
-        return "UPDATE $this->table 
-                SET :$params 
-                WHERE :$conditions;";
+        return "UPDATE
+                  $this->table 
+                SET 
+                  :$params 
+                WHERE 
+                  :$conditions;";
     }
 }
