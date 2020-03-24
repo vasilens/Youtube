@@ -139,4 +139,6 @@ abstract class AbstractDAO
 
         return "UPDATE $this->table SET $columns WHERE $values;";
     }
+
+    abstract public function table();
 }
