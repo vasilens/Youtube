@@ -4,13 +4,14 @@ namespace model;
 
 use PDO;
 
-class AbstractDAO
+abstract class AbstractDAO
 {
     /**
      * @var $pdo
      */
     public $pdo;
     public $statement;
+    public $table;
 
     /**
      * AbstractDAO constructor.
@@ -89,50 +90,53 @@ class AbstractDAO
     }
 
     /**
-     * @param string $table
-     * @param array $columns
-     * @param array $holders
+     * @param array $params
      *
      * @return string
      */
-    public function createInsertQuery($table, array $columns, array $holders)
+    public function createInsertQuery($params)
     {
-        $columns = implode(', ', array_values($columns));
-        $holders = implode(', ', $holders);
+        $columns = implode(', ', array_keys($params));
+        $holders = implode(', :', array_keys($params));
 
-        return "INSERT INTO $table ($columns) VALUES ($holders)";;
+        return "INSERT INTO $this->table ($columns) VALUES (:$holders);";
     }
 
     /**
-     * @param string $table
-     * @param array $columns
+     * @param array $params
      *
      * @return string
      */
-    public function createDeleteQuery($table, array $columns)
+    public function createDeleteQuery($params)
     {
-        $columns = implode(' = ? AND', array_values($columns));
-        $columns .= ' = ? AND';
-
-        return "DELETE FROM $table WHERE $columns";
-    }
-    /**
-     * @param string $table
-     * @param array $columns
-     * @param null | array
-     *
-     * @return string
-     */
-    public function createUpdateQuery($table, array $columns, $param = null)
-    {
-        $columns = implode(' = ?,', array_values($columns));
-        $columns .= ' = ?';
-        if ($param != null) {
-
-            return "UPDATE $table SET $columns WHERE $param = ?;";
-        } else {
-
-            return "UPDATE $table SET $columns";
+        foreach ($params as $key=>$item) {
+            $params["$key = :$key"] = $params[$key];
+            unset($params[$key]);
         }
+        $columns = implode(' AND ', array_keys($params));
+
+        return "DELETE FROM $this->table WHERE $columns;";
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return string
+     */
+    public function createUpdateQuery($params)
+    {
+        $values = [];
+        $columns = [];
+        foreach ($params as $key=>$item) {
+            if (strpos($key, 'id') !== false) {
+                $values["$key = :$key"] = $params[$key];
+            } else {
+                $columns["$key = :$key"] = $params[$key];
+            }
+        }
+        $columns = implode(', ', array_keys($columns));
+        $values = implode(', ', array_keys($values));
+
+        return "UPDATE $this->table SET $columns WHERE $values;";
     }
 }
