@@ -9,15 +9,22 @@ abstract class AbstractDAO
     /**
      * @var $pdo
      */
-    public $pdo;
-    public $statement;
-    public $table;
+    protected $pdo;
+    protected $statement;
+
+    /**
+     * @var $table
+     */
+    protected $table;
+
+    abstract protected function setTable();
 
     /**
      * AbstractDAO constructor.
      */
     public function __construct()
     {
+        $this->setTable();
         $this->pdo = dbManager::getInstance()->getPDO();
     }
 
@@ -55,17 +62,17 @@ abstract class AbstractDAO
 
     /**
      * @param string $sql
-     * @param array $params
+     * @param array  $params
      */
     public function prepareAndExecute($sql, $params = [])
     {
         $this->statement = $this->pdo->prepare($sql);
-        $this->statement->execute([$params]);
+        $this->statement->execute($params);
     }
 
     /**
      * @param string $sql
-     * @param array $params
+     * @param array  $params
      *
      * @return array
      */
@@ -78,7 +85,7 @@ abstract class AbstractDAO
 
     /**
      * @param string $sql
-     * @param array $params
+     * @param array  $params
      *
      * @return array
      */
@@ -99,7 +106,8 @@ abstract class AbstractDAO
         $columns = implode(', ', array_keys($params));
         $holders = implode(', :', array_keys($params));
 
-        return "INSERT INTO $this->table ($columns) VALUES (:$holders);";
+        return "INSERT INTO $this->table ($columns) 
+                VALUES (:$holders);";
     }
 
     /**
@@ -109,36 +117,28 @@ abstract class AbstractDAO
      */
     public function createDeleteQuery($params)
     {
-        foreach ($params as $key=>$item) {
-            $params["$key = :$key"] = $params[$key];
-            unset($params[$key]);
+        foreach ($params as $key=>$value) {
+            $params[$key] = "$key = :$key";
         }
         $columns = implode(' AND ', array_keys($params));
 
-        return "DELETE FROM $this->table WHERE $columns;";
+        return "DELETE FROM $this->table 
+                WHERE $columns;";
     }
 
     /**
      * @param array $params
+     * @param array $conditions
      *
      * @return string
      */
-    public function createUpdateQuery($params)
+    public function createUpdateQuery($params, $conditions)
     {
-        $values = [];
-        $columns = [];
-        foreach ($params as $key=>$item) {
-            if (strpos($key, 'id') !== false) {
-                $values["$key = :$key"] = $params[$key];
-            } else {
-                $columns["$key = :$key"] = $params[$key];
-            }
-        }
-        $columns = implode(', ', array_keys($columns));
-        $values = implode(', ', array_keys($values));
+        $params = implode(', :', array_keys($params));
+        $conditions = implode(', :', array_keys($conditions));
 
-        return "UPDATE $this->table SET $columns WHERE $values;";
+        return "UPDATE $this->table 
+                SET :$params 
+                WHERE :$conditions;";
     }
-
-    abstract public function table();
 }
