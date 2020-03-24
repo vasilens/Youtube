@@ -7,19 +7,19 @@ use PDO;
 abstract class AbstractDAO
 {
     /**
-     * @var $pdo
+     * @var instance
      */
-    protected $pdo;
+    private $pdo;
 
     /**
      * @var \PDOStatement
      */
-    protected $statement;
+    private $statement;
 
     /**
-     * @var $table
+     * @var string
      */
-    protected $table;
+    private $table;
 
     abstract protected function setTable();
 
@@ -111,10 +111,10 @@ abstract class AbstractDAO
         $holders = implode(', :', array_keys($params));
 
         return "INSERT INTO 
-                  $this->table 
-                  ($columns) 
+                    $this->table 
+                    ($columns) 
                 VALUES 
-                  (:$holders);";
+                    (:$holders);";
     }
 
     /**
@@ -130,9 +130,9 @@ abstract class AbstractDAO
         $columns = implode(' AND ', array_keys($params));
 
         return "DELETE FROM 
-                  $this->table 
+                    $this->table 
                 WHERE 
-                  $columns;";
+                    $columns;";
     }
 
     /**
@@ -147,10 +147,10 @@ abstract class AbstractDAO
         $conditions = implode(', :', array_keys($conditions));
 
         return "UPDATE
-                  $this->table 
+                    $this->table 
                 SET 
-                  :$params 
+                    :$params 
                 WHERE 
-                  :$conditions;";
+                    :$conditions;";
     }
 }
