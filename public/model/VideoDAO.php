@@ -1,22 +1,16 @@
 <?php
+
 namespace model;
+
 use http\Exception\BadUrlException;
 use PDO;
 use PDOException;
-class VideoDAO extends BaseDao {
-    private static $instance;
 
-    private function __construct()
-    {
-    }
-
-    public static function getInstance(){
-        if (self::$instance == null){
-            self::$instance = new VideoDAO();
-        }
-        return self::$instance;
-    }
-
+class VideoDAO extends AbstractDAO
+{
+    /**
+     * @param Video $video
+     */
     public function add(Video $video)
     {
         $title = $video->getTitle();
@@ -38,6 +32,9 @@ class VideoDAO extends BaseDao {
         $video->setId($video_id);
     }
 
+    /**
+     * @param Video $video
+     */
     public function edit(Video $video)
     {
         $title = $video->getTitle();
@@ -54,6 +51,10 @@ class VideoDAO extends BaseDao {
         $stmt->execute($params);
     }
 
+    /**
+     * @param int $id
+     * @param int $owner_id
+     */
     public function delete($id, $owner_id)
     {
         $pdo = $this->getPDO();
@@ -62,6 +63,9 @@ class VideoDAO extends BaseDao {
         $stmt->execute(array($id, $owner_id));
     }
 
+    /**
+     * @return array
+     */
     public function getCategories()
     {
         $pdo = $this->getPDO();
@@ -69,9 +73,15 @@ class VideoDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return $rows;
     }
 
+    /**
+     * @param int $id
+     *
+     * @return bool
+     */
     public function getCategoryById($id)
     {
         $pdo = $this->getPDO();
@@ -80,13 +90,19 @@ class VideoDAO extends BaseDao {
         $stmt->execute(array($id));
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row){
+
             return true;
         }
-        else {
-            return false;
-        }
+
+        return false;
     }
 
+    /**
+     * @param int           $owner_id
+     * @param string | null $orderby
+     *
+     * @return array
+     */
     public function getByOwnerId($owner_id, $orderby = null)
     {
         $pdo = $this->getPDO();
@@ -99,9 +115,15 @@ class VideoDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($owner_id));
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return $rows;
     }
 
+    /**
+     * @param int $id
+     *
+     * @return array
+     */
     public function getById($id)
     {
         $pdo = $this->getPDO();
@@ -112,9 +134,15 @@ class VideoDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($id));
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
         return $row;
     }
 
+    /**
+     * @param string | null $orderby
+     *
+     * @return array
+     */
     public function getAll($orderby = null)
     {
         $pdo = $this->getPDO();
@@ -126,10 +154,18 @@ class VideoDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return $rows;
     }
 
-    public function getHistory ($user_id, $orderby=null){
+    /**
+     * @param int           $user_id
+     * @param string | null $orderby
+     *
+     * @return array
+     */
+    public function getHistory ($user_id, $orderby=null)
+    {
         $pdo = $this->getPDO();
         $sql = "SELECT v.id, v.title, v.date_uploaded, u.username, v.views, v.thumbnail_url, SUM(urv.status) AS likes FROM videos AS v 
                 JOIN users AS u ON v.owner_id = u.id
@@ -141,10 +177,18 @@ class VideoDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($user_id));
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return $rows;
     }
 
-    public function getLikedVideos($user_id, $orderby=null){
+    /**
+     * @param int           $user_id
+     * @param string | null $orderby
+     *
+     * @return array
+     */
+    public function getLikedVideos($user_id, $orderby=null)
+    {
         $pdo = $this->getPDO();
         $sql = "SELECT v.id, v.title, v.date_uploaded, u.username, v.views, v.thumbnail_url, SUM(urv.status) AS likes FROM videos AS v 
                 JOIN users AS u ON v.owner_id = u.id
@@ -154,9 +198,16 @@ class VideoDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($user_id));
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return $rows;
     }
 
+    /**
+     * @param int $video_id
+     * @param int $status
+     *
+     * @return int | bool
+     */
     public function getReactions($video_id, $status)
     {
         $pdo = $this->getPDO();
@@ -166,11 +217,18 @@ class VideoDAO extends BaseDao {
         $stmt->execute(array($video_id, $status));
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row) {
+
             return $row["count"];
-        } else {
-            return 0;
         }
+
+        return false;
     }
+
+    /**
+     * @param Comment $comment
+     *
+     * @return string
+     */
     public function addComment(Comment $comment)
     {
         $pdo = $this->getPDO();
@@ -179,9 +237,15 @@ class VideoDAO extends BaseDao {
                 VALUES (?, ?, ?, ?);";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($comment->getVideoId(), $comment->getOwnerId(), $comment->getContent(), $comment->getDate()));
+
         return $pdo->lastInsertId();
     }
 
+    /**
+     * @param int $comment_id
+     *
+     * @return array
+     */
     public function getCommentById($comment_id)
     {
         $pdo = $this->getPDO();
@@ -193,9 +257,15 @@ class VideoDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($comment_id));
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
         return $row;
     }
 
+    /**
+     * @param int $video_id
+     *
+     * @return array
+     */
     public function getComments($video_id)
     {
         $pdo = $this->getPDO();
@@ -208,9 +278,14 @@ class VideoDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($video_id));
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return $rows;
     }
 
+    /**
+     * @param int $comment_id
+     * @param int $owner_id
+     */
     public function deleteComment($comment_id, $owner_id)
     {
         $pdo = $this->getPDO();
@@ -219,14 +294,22 @@ class VideoDAO extends BaseDao {
         $stmt->execute(array($comment_id, $owner_id));
     }
 
-    public function updateViews($video_id){
+    /**
+     * @param int $video_id
+     */
+    public function updateViews($video_id)
+    {
         $pdo = $this->getPDO();
         $sql = "UPDATE videos SET views = views + 1 WHERE id = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($video_id));
     }
 
-    public function getMostWatched(){
+    /**
+     * @return array
+     */
+    public function getMostWatched()
+    {
         $pdo = $this->getPDO();
         $sql = "SELECT v.id, v.title, v.date_uploaded, u.username, v.views, v.thumbnail_url, SUM(urv.status) AS likes FROM videos AS v 
                 JOIN users AS u ON v.owner_id = u.id
@@ -236,10 +319,17 @@ class VideoDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return $rows;
     }
 
-    public function getWatchLater($user_id){
+    /**
+     * @param int $user_id
+     *
+     * @return array
+     */
+    public function getWatchLater($user_id)
+    {
         $pdo = $this->getPDO();
         $sql = "SELECT v.id, v.title, v.date_uploaded, p.playlist_title, u.username, v.views, v.thumbnail_url FROM videos AS v 
                 JOIN users AS u ON v.owner_id = u.id
@@ -250,7 +340,15 @@ class VideoDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($user_id));
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return $rows;
     }
 
+    /**
+     *
+     */
+    protected function setTable()
+    {
+        // TODO: Implement setTable() method.
+    }
 }

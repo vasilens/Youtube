@@ -1,30 +1,31 @@
 <?php
+
 namespace model;
+
 use PDO;
 use PDOException;
-class UserDAO extends BaseDao {
-    private static $instance;
 
-    private function __construct()
+class UserDAO extends AbstractDAO
+{
+    /**
+     * @return array
+     */
+    public function getAll()
     {
-    }
-
-    public static function getInstance(){
-        if (self::$instance == null){
-            self::$instance = new UserDAO();
-        }
-        return self::$instance;
-    }
-
-    public function getAll() {
         $pdo = $this->getPDO();
         $sql = "SELECT id, username, email, name, registration_date FROM users";
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return $rows;
     }
 
+    /**
+     * @param string $email
+     *
+     * @return array | bool
+     */
     public function checkUser($email)
     {
         $pdo = $this->getPDO();
@@ -33,13 +34,18 @@ class UserDAO extends BaseDao {
         $stmt->execute(array($email));
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if (empty($row)) {
+
             return false;
         }
-        else {
-            return $row;
-        }
+
+        return $row;
     }
 
+    /**
+     * @param string $username
+     *
+     * @return array | bool
+     */
     public function checkUsername($username)
     {
         $pdo = $this->getPDO();
@@ -48,13 +54,18 @@ class UserDAO extends BaseDao {
         $stmt->execute(array($username));
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if (empty($row)) {
+
             return false;
         }
-        else {
-            return $row;
-        }
+
+        return $row;
     }
 
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
     public function registerUser(User $user)
     {
         $username = $user->getUsername();
@@ -79,23 +90,34 @@ class UserDAO extends BaseDao {
             $stmt = $pdo->prepare($sql);
             $stmt->execute(array($playlist_title, $owner_id, $date_created));
             $pdo->commit();
+
             return true;
         }
-        catch (PDOException $e){
+        catch (PDOException $e) {
             $pdo->rollBack();
             throw $e;
         }
     }
 
-    public function getById($id){
+    /**
+     * @param int $id
+     *
+     * @return array
+     */
+    public function getById($id)
+    {
         $pdo = $this->getPDO();
         $sql = "SELECT username, name, registration_date, avatar_url FROM users WHERE id = ?;";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($id));
         $rows = $stmt->fetch(PDO::FETCH_ASSOC);
+
         return $rows;
     }
 
+    /**
+     * @param User $user
+     */
     public function editUser(User $user)
     {
         $username = $user->getUsername();
@@ -110,7 +132,12 @@ class UserDAO extends BaseDao {
         $stmt->execute(array($username, $email, $password, $full_name, $avatar_url, $id));
     }
 
-    public function followUser($follower_id, $followed_id){
+    /**
+     * @param int $follower_id
+     * @param int $followed_id
+     */
+    public function followUser($follower_id, $followed_id)
+    {
         $pdo = $this->getPDO();
         $sql = "INSERT INTO users_follow_users (follower_id, followed_id)
                 VALUES (?, ?);";
@@ -118,41 +145,65 @@ class UserDAO extends BaseDao {
         $stmt->execute(array($follower_id, $followed_id));
     }
 
-    public function unfollowUser($follower_id, $followed_id){
+    /**
+     * @param int $follower_id
+     * @param int $followed_id
+     */
+    public function unfollowUser($follower_id, $followed_id)
+    {
         $pdo = $this->getPDO();
         $sql = "DELETE FROM users_follow_users WHERE follower_id = ? AND followed_id = ?;";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($follower_id, $followed_id));
     }
 
-    public function isFollowing($follower_id, $followed_id){
+    /**
+     * @param int $follower_id
+     * @param int $followed_id
+     *
+     * @return bool
+     */
+    public function isFollowing($follower_id, $followed_id)
+    {
         $pdo = $this->getPDO();
         $sql = "SELECT followed_id FROM users_follow_users WHERE follower_id = ? AND followed_id = ?;";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($follower_id, $followed_id));
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row){
+
             return true;
         }
-        else {
-            return false;
-        }
+
+        return false;
     }
 
-    public function isReacting($user_id, $video_id){
+    /**
+     * @param int $user_id
+     * @param int $video_id
+     *
+     * @return int
+     */
+    public function isReacting($user_id, $video_id)
+    {
         $pdo = $this->getPDO();
         $sql = "SELECT status FROM users_react_videos WHERE user_id = ? AND video_id = ?;";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($user_id, $video_id));
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row){
+        if ($row) {
+
             return $row["status"];
         }
-        else {
-            return -1;
-        }
+
+        return -1;
     }
 
+    /**
+     * @param int $user_id
+     * @param int $video_id
+     * @param int $status
+     */
     public function reactVideo($user_id, $video_id, $status){
         $pdo = $this->getPDO();
         $sql = "INSERT INTO users_react_videos (user_id, video_id, status)
@@ -161,6 +212,10 @@ class UserDAO extends BaseDao {
         $stmt->execute(array($user_id, $video_id, $status));
     }
 
+    /**
+     * @param int $user_id
+     * @param int $video_id
+     */
     public function unreactVideo($user_id, $video_id){
         $pdo = $this->getPDO();
         $sql = "DELETE FROM users_react_videos WHERE user_id = ? AND video_id = ?;";
@@ -168,21 +223,32 @@ class UserDAO extends BaseDao {
         $stmt->execute(array($user_id, $video_id));
     }
 
+    /**
+     * @param int $user_id
+     * @param int $comment_id
+     * @return int
+     */
     public function isReactingComment($user_id, $comment_id){
         $pdo = $this->getPDO();
         $sql = "SELECT status FROM users_react_comments WHERE user_id = ? AND comment_id = ?;";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($user_id, $comment_id));
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row){
+        if ($row) {
+
             return $row["status"];
         }
-        else {
-            return -1;
-        }
+
+        return -1;
     }
 
-    public function reactComment($user_id, $comment_id, $status){
+    /**
+     * @param int $user_id
+     * @param int $comment_id
+     * @param int $status
+     */
+    public function reactComment($user_id, $comment_id, $status)
+    {
         $pdo = $this->getPDO();
         $sql = "INSERT INTO users_react_comments (user_id, comment_id, status)
                 VALUES (?, ?, ?)";
@@ -190,14 +256,25 @@ class UserDAO extends BaseDao {
         $stmt->execute(array($user_id, $comment_id, $status));
     }
 
-    public function unreactComment($user_id, $comment_id){
+    /**
+     * @param int $user_id
+     * @param int $comment_id
+     */
+    public function unreactComment($user_id, $comment_id)
+    {
         $pdo = $this->getPDO();
         $sql = "DELETE FROM users_react_comments WHERE user_id = ? AND comment_id = ?;";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($user_id, $comment_id));
     }
 
-    public function getCommentReactions($comment_id, $status){
+    /**
+     * @param int $comment_id
+     * @param int $status
+     * @return int
+     */
+    public function getCommentReactions($comment_id, $status)
+    {
         $pdo = $this->getPDO();
         $sql = "SELECT COUNT(*) AS count FROM users_react_comments 
                 WHERE comment_id = ? AND status = ?;";
@@ -205,28 +282,40 @@ class UserDAO extends BaseDao {
         $stmt->execute(array($comment_id, $status));
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row) {
+
             return $row["count"];
         }
-        else {
-            return 0;
-        }
+
+        return 0;
     }
 
-    public function getSubscriptions($logged_user){
+    /**
+     * @param int $logged_user
+     *
+     * @return array | bool
+     */
+    public function getSubscriptions($logged_user)
+    {
         $pdo = $this->getPDO();
         $sql = "SELECT u.username, u.avatar_url, u.name, ufu.followed_id FROM users_follow_users AS ufu
                 JOIN users AS u ON u.id = ufu.followed_id WHERE ufu.follower_id = ?;";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($logged_user));
         $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if ($row){
+        if ($row) {
+
             return $row;
         }
-        else {
-            return false;
-        }
+
+        return false;
     }
-    public function getFollowedUser($followed_id){
+
+    /**
+     * @param int $followed_id
+     * @return array
+     */
+    public function getFollowedUser($followed_id)
+    {
         $pdo = $this->getPDO();
         $sql = "SELECT u.username, u.avatar_url, u.name,p.id, p.playlist_title, p.date_created, v.title,
                 v.date_uploaded,v.id AS video_id, v.thumbnail_url FROM users AS u
@@ -235,11 +324,18 @@ class UserDAO extends BaseDao {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array($followed_id));
         $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return $row;
     }
 
-    public function addToHistory($video_id, $user_id, $date){
-        try{
+    /**
+     * @param int $video_id
+     * @param int $user_id
+     * @param string $date
+     */
+    public function addToHistory($video_id, $user_id, $date)
+    {
+        try {
             $pdo = $this->getPDO();
             $pdo->beginTransaction();
             $sql1 = "SELECT * FROM users_watch_videos WHERE video_id = ? AND user_id = ?;";
@@ -249,7 +345,7 @@ class UserDAO extends BaseDao {
                     WHERE video_id = ? AND user_id = ?;";
             $stmt1 = $pdo->prepare($sql1);
             $stmt1->execute(array($video_id, $user_id));
-            if(!$stmt1->rowCount()){
+            if (!$stmt1->rowCount()) {
                 $stmt2 = $pdo->prepare($sql2);
                 $stmt2->execute(array($video_id, $user_id, $date));
             }
@@ -258,10 +354,17 @@ class UserDAO extends BaseDao {
                 $stmt3->execute(array($date, $video_id, $user_id));
             }
             $pdo->commit();
-        } catch (PDOException $e){
+        } catch (PDOException $e) {
             $pdo->rollBack();
             throw new PDOException();
         }
     }
 
+    /**
+     *
+     */
+    protected function setTable()
+    {
+        // TODO: Implement setTable() method.
+    }
 }
