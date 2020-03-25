@@ -135,7 +135,8 @@ abstract class AbstractDAO
             DELETE FROM 
                 $this->table 
             WHERE 
-                $columns;";
+                $columns;
+        ";
     }
 
     /**
