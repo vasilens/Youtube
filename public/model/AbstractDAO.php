@@ -7,7 +7,7 @@ use PDO;
 abstract class AbstractDAO
 {
     /**
-     * @var instance
+     * @var PDO
      */
     private $pdo;
 
@@ -19,7 +19,7 @@ abstract class AbstractDAO
     /**
      * @var string
      */
-    private $table;
+    protected $table;
 
     abstract protected function setTable();
 
