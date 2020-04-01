@@ -42,14 +42,14 @@ class VideoController extends AbstractController
                 $error = true;
             }
             if ($error) {
-                $videoDao = VideoDAO::getInstance();
+                $videoDao = new VideoDAO();
                 $categories = $videoDao->getCategories();
 
                 include_once "view/upload.php";
 
                 echo $msg;
             } else {
-                $videoDao = VideoDAO::getInstance();
+                $videoDao = new VideoDAO();
                 $categoryExists = $videoDao->getCategoryById($postParams["category_id"]);
                 if (!$categoryExists) {
                     throw new InvalidArgumentException("Invalid category.");
@@ -89,7 +89,7 @@ class VideoController extends AbstractController
         if (empty($id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videoDao = VideoDAO::getInstance();
+        $videoDao = new VideoDAO();
         $video = $videoDao->getById($id);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
@@ -130,7 +130,7 @@ class VideoController extends AbstractController
                 throw new AuthorizationException("Unauthorized user.");
             }
             if ($error) {
-                $videoDao = VideoDAO::getInstance();
+                $videoDao = new VideoDAO();
                 $video = $videoDao->getById($postParams["id"]);
                 $categories = $videoDao->getCategories();
 
@@ -139,7 +139,7 @@ class VideoController extends AbstractController
                 echo $msg;
             }
             if (!$error) {
-                $videoDao = VideoDAO::getInstance();
+                $videoDao = new VideoDAO();
                 $categoryExists = $videoDao->getCategoryById($postParams["category_id"]);
                 if (!$categoryExists) {
                     throw new InvalidArgumentException("Invalid category.");
@@ -184,7 +184,7 @@ class VideoController extends AbstractController
         if (empty($id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videoDao = VideoDAO::getInstance();
+        $videoDao = new VideoDAO();
         $video = $videoDao->getById($id);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
@@ -192,7 +192,7 @@ class VideoController extends AbstractController
         if ($video["owner_id"] != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
-        $videoDao->delete($id, $ownerId);
+        $videoDao->deleteVideo($id, $ownerId);
 
         include_once "view/main.php";
 
@@ -222,7 +222,7 @@ class VideoController extends AbstractController
                     $orderby .= " DESC";
                 }
             }
-            $videoDao = VideoDAO::getInstance();
+            $videoDao = new VideoDAO();
             $videos = $videoDao->getByOwnerId($ownerId, $orderby);
             $action = "getByOwnerId";
             $orderby = true;
@@ -244,7 +244,7 @@ class VideoController extends AbstractController
         if (empty($id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videoDao = VideoDAO::getInstance();
+        $videoDao = new VideoDAO();
         $video = $videoDao->getById($id);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
@@ -277,7 +277,7 @@ class VideoController extends AbstractController
                 $orderBy .= " DESC";
             }
         }
-        $dao = VideoDAO::getInstance();
+        $dao = new VideoDAO();
         $videos = $dao->getAll($orderBy);
         $action = "getAll";
         $orderBy = true;
@@ -287,7 +287,7 @@ class VideoController extends AbstractController
 
     public function getTrending()
     {
-        $videoDao = VideoDAO::getInstance();
+        $videoDao = new VideoDAO();
         $videos = $videoDao->getMostWatched();
 
         include_once "view/main.php";
@@ -310,7 +310,7 @@ class VideoController extends AbstractController
                     $orderBy .= " DESC";
                 }
             }
-            $videoDao = VideoDAO::getInstance();
+            $videoDao = new VideoDAO();
             $videos = $videoDao->getHistory($userId, $orderBy);
 
             include_once "view/main.php";
@@ -321,7 +321,7 @@ class VideoController extends AbstractController
     public function getWatchLater()
     {
         $userId = $_SESSION["logged_user"]["id"];
-        $videoDao = VideoDAO::getInstance();
+        $videoDao = new VideoDAO();
         $videos = $videoDao->getWatchLater($userId);
 
         include_once "view/main.php";
@@ -345,7 +345,7 @@ class VideoController extends AbstractController
                     $orderBy .= " DESC";
                 }
             }
-            $videoDao = VideoDAO::getInstance();
+            $videoDao = new VideoDAO();
             $videos = $videoDao->getLikedVideos($userId, $orderBy);
 
             include_once "view/main.php";

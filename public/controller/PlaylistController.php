@@ -40,7 +40,7 @@ class PlaylistController extends AbstractController
             $playlist->setTitle($title);
             $playlist->setOwnerId($ownerId);
             $playlist->setDateCreated($date_created);
-            $playlistDao = PlaylistDAO::getInstance();
+            $playlistDao = new PlaylistDAO();
             $playlistDao->create($playlist);
 
             include_once "view/playlists.php";
@@ -54,7 +54,7 @@ class PlaylistController extends AbstractController
     public function getMyPlaylists()
     {
         $ownerId = $_SESSION["logged_user"]["id"];
-        $playlistDao = PlaylistDAO::getInstance();
+        $playlistDao = new PlaylistDAO();
         $playlists = $playlistDao->getAllByUserId($ownerId);
 
         include_once "view/playlists.php";
@@ -72,8 +72,8 @@ class PlaylistController extends AbstractController
         if (empty($playlistId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $playlistDao = PlaylistDAO::getInstance();
-        $exists = $playlistDao->existsPlaylist($playlistId);
+        $playlistDao = new PlaylistDAO();
+        $exists = $playlistDao->findAllAssoc(['id' => $playlistId]);
         if (!$exists) {
             throw new InvalidArgumentException("Invalid playlist.");
         }
@@ -96,7 +96,7 @@ class PlaylistController extends AbstractController
         if (empty($playlistId) || empty($videoId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $playlistDao = PlaylistDAO::getInstance();
+        $playlistDao = new PlaylistDAO();
         $playlist = $playlistDao->existsPlaylist($playlistId);
         if (!$playlist) {
             throw new InvalidArgumentException("Invalid playlist.");
@@ -120,7 +120,7 @@ class PlaylistController extends AbstractController
     public function getMyPlaylistsJSON()
     {
         $ownerId = $_SESSION["logged_user"]["id"];
-        $playlistDao = PlaylistDAO::getInstance();
+        $playlistDao = new PlaylistDAO();
         $playlists = $playlistDao->getAllByUserId($ownerId);
 
         echo json_encode($playlists);

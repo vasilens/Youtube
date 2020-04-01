@@ -5,7 +5,9 @@ namespace controller;
 use exceptions\InvalidArgumentException;
 use exceptions\AuthorizationException;
 use model\Comment;
+use model\User;
 use model\UserDAO;
+use model\Video;
 use model\VideoDAO;
 
 class CommentController extends AbstractController
@@ -25,7 +27,7 @@ class CommentController extends AbstractController
         if (empty($postParams["content"])) {
             throw new InvalidArgumentException("Comment is empty.");
         }
-        $videoDao = VideoDAO::getInstance();
+        $videoDao = new VideoDAO();
         $video = $videoDao->getById($postParams["video_id"]);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
@@ -51,7 +53,7 @@ class CommentController extends AbstractController
         if (empty($commentId) || empty($ownerId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videoDao = VideoDAO::getInstance();
+        $videoDao = new VideoDAO();
         $comment = $videoDao->getCommentById($commentId);
         if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
@@ -69,7 +71,7 @@ class CommentController extends AbstractController
         if (empty($userId) || empty($commentId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $userDao = UserDAO::getInstance();
+        $userDao = new UserDAO();
 
         return $userDao->isReactingComment($userId, $commentId);
     }
@@ -88,13 +90,13 @@ class CommentController extends AbstractController
         if ($status != 0 && $status != 1) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videoDao = VideoDAO::getInstance();
+        $videoDao = new VideoDAO();
         $comment = $videoDao->getCommentById($commentId);
         if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
         }
         $isReacting = $this->isReactingComment($userId, $commentId);
-        $userDao = UserDAO::getInstance();
+        $userDao = new UserDAO();
         if ($isReacting == -1) {//if there has been no reaction
             $userDao->reactComment($userId, $commentId, $status);
         } elseif ($isReacting == $status) { //if liking liked or disliking disliked video

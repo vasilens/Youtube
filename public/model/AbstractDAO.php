@@ -40,6 +40,11 @@ abstract class AbstractDAO
         $this->pdo->beginTransaction();
     }
 
+    public function rowCount($query, $params){
+        $this->prepareAndExecute($query, $params);
+        return $this->statement->rowCount();
+    }
+
     /**
      * Commit
      */
@@ -65,37 +70,39 @@ abstract class AbstractDAO
     }
 
     /**
-     * @param string $sql
+     * @param string $query
      * @param array  $params
+     *
+     * @return bool
      */
-    public function prepareAndExecute($sql, $params = [])
+    public function prepareAndExecute($query, $params = [])
     {
-        $this->statement = $this->pdo->prepare($sql);
+        $this->statement = $this->pdo->prepare($query);
         $this->statement->execute($params);
     }
 
     /**
-     * @param string $sql
+     * @param string $query
      * @param array  $params
      *
      * @return array
      */
-    public function fetchAssoc($sql, $params = [])
+    public function fetchAssoc($query, $params = [])
     {
-        $this->prepareAndExecute($sql, $params);
+        $this->prepareAndExecute($query, $params);
 
         return $this->statement->fetch(\PDO::FETCH_ASSOC);
     }
 
     /**
-     * @param string $sql
+     * @param string $query
      * @param array  $params
      *
      * @return array
      */
-    public function fetchAllAssoc($sql, $params = [])
+    public function fetchAllAssoc($query, $params = [])
     {
-        $this->prepareAndExecute($sql, $params);
+        $this->prepareAndExecute($query, $params);
 
         return $this->statement->fetchAll(\PDO::FETCH_ASSOC);
     }
@@ -105,18 +112,19 @@ abstract class AbstractDAO
      *
      * @return string
      */
-    public function createInsertQuery($params)
+    public function insert($params)
     {
         $columns = implode(', ', array_keys($params));
         $holders = implode(', :', array_keys($params));
 
-        return "
+        $query =  "
             INSERT INTO 
                  $this->table 
                 ($columns) 
             VALUES 
                 (:$holders);
         ";
+        $this->prepareAndExecute($query, $params);
     }
 
     /**
@@ -124,19 +132,20 @@ abstract class AbstractDAO
      *
      * @return string
      */
-    public function createDeleteQuery($params)
+    public function delete($params)
     {
         foreach ($params as $key=>$value) {
             $params[$key] = "$key = :$key";
         }
         $columns = implode(' AND ', array_keys($params));
 
-        return "
+        $query = "
             DELETE FROM 
                 $this->table 
             WHERE 
                 $columns;
         ";
+        $this->prepareAndExecute($query, $params);
     }
 
     /**
@@ -145,18 +154,64 @@ abstract class AbstractDAO
      *
      * @return string
      */
-    public function createUpdateQuery($params, $conditions)
+    public function update($params, $conditions)
     {
         $params = implode(', :', array_keys($params));
         $conditions = implode(', :', array_keys($conditions));
-
-        return "
+        $query = "
             UPDATE
-                   $this->table 
+                 $this->table 
             SET 
                 :$params 
             WHERE 
                 :$conditions;
         ";
+        $this->prepareAndExecute($query, $params);
+    }
+    public function findAllAssoc($params = null)
+    {
+        if($params == null){
+            $query = "
+                SELECT
+                    *
+                FROM 
+                    {$this->table}";
+        } else {
+            $query = "
+            SELECT
+                * 
+            FROM
+                {$this->table}
+            WHERE 
+                id = :id;
+        ";
+        }
+        return $this->fetchAllAssoc(
+            $query,
+            $params
+        );
+    }
+    public function findOneAssoc($params = null)
+    {
+        if($params == null){
+            $query = "
+                SELECT
+                    *
+                FROM 
+                    {$this->table}";
+        } else {
+            $query = "
+            SELECT
+                * 
+            FROM
+                {$this->table}
+            WHERE 
+                id = :id;
+        ";
+        }
+        return $this->fetchAssoc(
+            $query,
+            $params
+        );
     }
 }

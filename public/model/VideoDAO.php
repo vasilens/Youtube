@@ -55,7 +55,7 @@ class VideoDAO extends AbstractDAO
      * @param int $id
      * @param int $owner_id
      */
-    public function delete($id, $owner_id)
+    public function deleteVideo($id, $owner_id)
     {
         $pdo = $this->getPDO();
         $sql = "DELETE FROM videos WHERE id = ? AND owner_id = ?;";
@@ -145,17 +145,22 @@ class VideoDAO extends AbstractDAO
      */
     public function getAll($orderby = null)
     {
-        $pdo = $this->getPDO();
-        $sql = "SELECT v.id, v.title, v.date_uploaded, u.username, v.views, v.thumbnail_url, SUM(urv.status) AS likes FROM videos AS v 
+        $query = "
+            SELECT
+                v.id,
+                v.title,
+                v.date_uploaded,
+                u.username,
+                v.views,
+                v.thumbnail_url,
+                SUM(urv.status) AS likes
+            FROM videos AS v 
                 JOIN users AS u ON v.owner_id = u.id
                 LEFT JOIN users_react_videos AS urv ON urv.video_id = v.id
                 GROUP BY v.id
                 $orderby;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $rows;
+        return $this->fetchAllAssoc($query);
     }
 
     /**

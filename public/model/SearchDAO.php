@@ -8,16 +8,16 @@ use PDOException;
 class SearchDAO extends AbstractDAO
 {
     /**
-     * @param string $search_query
+     * @param string $searchQuery
      *
      * @return array
      */
-    public function getSearchedVideos($search_query)
+    public function getSearchedVideos($searchQuery)
     {
         $params = [
-            'searchQuery' => $search_query
+            'searchQuery' => $searchQuery
         ];
-        $sql = "
+        $query = "
             SELECT
                 v.id,
                 v.title,
@@ -33,22 +33,22 @@ class SearchDAO extends AbstractDAO
         ";
 
         return $this->fetchAllAssoc(
-            $sql,
+            $query,
             $params
         );
     }
 
     /**
-     * @param string $search_query
+     * @param string $searchQuery
      *
      * @return array
      */
-    public function getSearchedUsers($search_query)
+    public function getSearchedUsers($searchQuery)
     {
         $params = [
-            'searchQuery' => $search_query
+            'searchQuery' => $searchQuery
         ];
-        $sql = "
+        $query = "
             SELECT
                 u.id,
                 u.username,
@@ -61,22 +61,22 @@ class SearchDAO extends AbstractDAO
                 u.username LIKE :searchQuery;
         ";
         return $this->fetchAllAssoc(
-            $sql,
+            $query,
             $params
         );
     }
 
     /**
-     * @param string $search_query
+     * @param string $searchQuery
      *
      * @return array
      */
-    public function getSearchedPlaylists($search_query)
+    public function getSearchedPlaylists($searchQuery)
     {
         $params = [
-            'searchQuery' => $search_query
+            'searchQuery' => $searchQuery
         ];
-        $sql = "
+        $query = "
             SELECT
                 p.id,
                 p.playlist_title,
@@ -84,11 +84,11 @@ class SearchDAO extends AbstractDAO
             FROM 
                 playlists AS p
             WHERE
-                p.playlist_title LIKE ?;
+                p.playlist_title LIKE :searchQuery;
         ";
 
         return $this->fetchAllAssoc(
-            $sql,
+            $query,
             $params
         );
     }
@@ -98,13 +98,7 @@ class SearchDAO extends AbstractDAO
      */
     public function getAllPlaylists()
     {
-        $sql = "
-            SELECT
-                *
-            FROM
-                playlists;
-        ";
-        return $this->fetchAllAssoc($sql);
+        return $this->findAllAssoc();
     }
 
     /**
@@ -112,14 +106,7 @@ class SearchDAO extends AbstractDAO
      */
     public function getAllVideos()
     {
-        $sql = "
-            SELECT
-                *
-            FROM
-                videos;
-        ";
-
-        return $this->fetchAllAssoc($sql);
+        return $this->findAllAssoc();
     }
 
     /**
@@ -127,14 +114,7 @@ class SearchDAO extends AbstractDAO
      */
     public function getAllUsers()
     {
-        $sql = "
-            SELECT
-                *
-            FROM
-                users;
-        ";
-
-        return $this->fetchAllAssoc($sql);
+        return $this->findAllAssoc();
     }
 
     protected function setTable()

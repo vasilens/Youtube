@@ -16,7 +16,7 @@ class PlaylistDAO extends AbstractDAO
         $params = [
             'ownerId' => $userId
         ];
-        $sql = "
+        $query = "
             SELECT 
                 id,
                 playlist_title,
@@ -29,7 +29,7 @@ class PlaylistDAO extends AbstractDAO
         ";
 
         return $this->fetchAllAssoc(
-            $sql,
+            $query,
             $params
         );
     }
@@ -46,25 +46,23 @@ class PlaylistDAO extends AbstractDAO
             'owner_id'       => $playlist->getOwnerId(),
             'date_created'   => $playlist->getDateCreated()
         ];
-        $this->prepareAndExecute(
-            $this->createInsertQuery($params),
-            $params
-        );
+        //playlists
+        $this->insert($params);
 
         return $this->lastInsertId();
     }
 
     /**
-     * @param int $playlist_id
+     * @param int $playlistId
      *
      * @return array
      */
-    public function getVideosFromPlaylist($playlist_id)
+    public function getVideosFromPlaylist($playlistId)
     {
         $params = [
-            'playlistId' => $playlist_id
+            'playlistId' => $playlistId
         ];
-        $sql = "
+        $query = "
             SELECT 
                 v.id,
                 v.title,
@@ -83,92 +81,68 @@ class PlaylistDAO extends AbstractDAO
         ";
 
         return $this->fetchAllAssoc(
-            $sql,
+            $query,
             $params
         );
     }
 
     /**
-     * @param int    $playlist_id
-     * @param int    $video_id
+     * @param int    $playlistId
+     * @param int    $videoId
      * @param string $date
      */
-    public function addToPlaylist($playlist_id, $video_id, $date)
+    public function addToPlaylist($playlistId, $videoId, $date)
     {
         $params = [
-            'playlist_id' => $playlist_id,
-            'video_id'    => $video_id,
+            'playlist_id' => $playlistId,
+            'video_id'    => $videoId,
             'date_added'  => $date
         ];
-        $this->prepareAndExecute(
-            $this->createInsertQuery($params),
-            $params
-        );
+        //added_to_playlist
+        $this->insert($params);
     }
 
     /**
-     * @param int $playlist_id
-     *
-     * @return array | bool
-     */
-    public function existsPlaylist($playlist_id)
-    {
-        $params = [
-            'playlistId' => $playlist_id
-        ];
-        $sql = "
-            SELECT
-                * 
-            FROM
-                playlists 
-            WHERE 
-                id = :playlistId;
-        ";
-
-        return $this->fetchAssoc(
-            $sql,
-            $params
-        );
-    }
-
-    /**
-     * @param int $video_id
+     * @param int $playlistId
      *
      * @return array
      */
-    public function existsVideo($video_id)
+    public function existsPlaylist($playlistId)
     {
         $params = [
-            ':videoId' => $video_id
+            'id' => $playlistId
         ];
-        $sql = "
-            SELECT
-                * 
-            FROM
-                videos
-            WHERE 
-                id = :videoId;
-        ";
-
-        return $this->fetchAllAssoc(
-            $sql,
-            $params
-        );
+        //playlists
+        return $this->findAllAssoc($params);
     }
 
     /**
-     * @param int $video_id
-     * @param int $playlist_id
+     * @param int $videoId
      *
      * @return array
      */
-    public function existsRecord($playlist_id, $video_id)
+    public function existsVideo($videoId)
     {
         $params = [
-            'playlistId' => $playlist_id,
-            'videoId'    => $video_id
+            'id' => $videoId
         ];
-        $sql = "
+        //videos
+        return $this->findAllAssoc($params);
+    }
+
+    /**
+     * @param int $videoId
+     * @param int $playlistId
+     *
+     * @return array
+     */
+    public function existsRecord($playlistId, $videoId)
+    {
+        $params = [
+            'playlistId' => $playlistId,
+            'videoId'    => $videoId
+        ];
+        $query = "
             SELECT
                 *
             FROM 
@@ -179,33 +153,31 @@ class PlaylistDAO extends AbstractDAO
         ";
 
         return $this->fetchAllAssoc(
-            $sql,
+            $query,
             $params
         );
     }
 
     /**
-     * @param int    $playlist_id
-     * @param int    $video_id
+     * @param int    $playlistId
+     * @param int    $videoId
      * @param string $date
      */
-    public function updateRecord($playlist_id, $video_id, $date)
+    public function updateRecord($playlistId, $videoId, $date)
     {
         $params = [
             'date_added' => $date
         ];
         $conditions = [
-            'playlist_id' => $playlist_id,
-            'video_id'    => $video_id
+            'playlist_id' => $playlistId,
+            'video_id'    => $videoId
         ];
-        $this->prepareAndExecute(
-            $this->createUpdateQuery($params, $conditions),
-            $params
-        );
+        //added_to_playlist
+        $this->update($params, $conditions);
     }
 
     protected function setTable()
     {
-        // TODO: Implement setTable() method.
+        $this->table = 'playlists';
     }
 }

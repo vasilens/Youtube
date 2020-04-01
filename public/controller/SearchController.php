@@ -23,7 +23,7 @@ class SearchController extends AbstractController
                 return;
             }
                 $searchQuery = htmlentities($postParams['search_query']);
-                $searchDao = SearchDAO::getInstance();
+                $searchDao = new SearchDAO();
                 $videos = $searchDao->getSearchedVideos($searchQuery);
                 $playlists = $searchDao->getSearchedPlaylists($searchQuery);
                 $users = $searchDao->getSearchedUsers($searchQuery);
