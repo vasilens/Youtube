@@ -71,7 +71,8 @@ class PlaylistDAO extends AbstractDAO
                 u.username,
                 v.views,
                 v.thumbnail_url
-            FROM videos AS v 
+            FROM 
+                videos AS v 
                 JOIN users AS u ON v.owner_id = u.id
                 JOIN added_to_playlist AS atp ON v.id = atp.video_id
                 JOIN playlists AS p ON p.id = atp.playlist_id      

@@ -5,9 +5,8 @@ namespace controller;
 use exceptions\InvalidArgumentException;
 use exceptions\AuthorizationException;
 use model\Comment;
-use model\User;
-use model\UserDAO;
-use model\Video;
+use model\CommentDAO;
+use model\UsersReactCommentsDAO;
 use model\VideoDAO;
 
 class CommentController extends AbstractController
@@ -27,6 +26,8 @@ class CommentController extends AbstractController
         if (empty($postParams["content"])) {
             throw new InvalidArgumentException("Comment is empty.");
         }
+        $usersReactCommentsDao = new UsersReactCommentsDAO();
+        $commentsDao = new CommentDAO();
         $videoDao = new VideoDAO();
         $video = $videoDao->getById($postParams["video_id"]);
         if (empty($video)) {
@@ -37,8 +38,8 @@ class CommentController extends AbstractController
         $comment->setVideoId($postParams["video_id"]);
         $comment->setOwnerId($postParams["owner_id"]);
         $comment->setDate(date("Y-m-d H:i:s"));
-        $comment_id = $videoDao->addComment($comment);
-        $comment = $videoDao->getCommentById($comment_id);
+        $commentId = $commentsDao->addComment($comment);
+        $comment = $usersReactCommentsDao->getCommentById($commentId);
 
         echo json_encode($comment);
     }
@@ -53,12 +54,13 @@ class CommentController extends AbstractController
         if (empty($commentId) || empty($ownerId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videoDao = new VideoDAO();
-        $comment = $videoDao->getCommentById($commentId);
+        $usersReactCommentsDao = new UsersReactCommentsDAO();
+        $comment = $usersReactCommentsDao->getCommentById($commentId);
         if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
         }
-        $videoDao->deleteComment($commentId, $ownerId);
+        $commentsDao = new CommentDAO();
+        $commentsDao->deleteComment($commentId, $ownerId);
     }
 
     public function isReactingComment()
@@ -71,9 +73,9 @@ class CommentController extends AbstractController
         if (empty($userId) || empty($commentId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $userDao = new UserDAO();
+        $commentDao = new UsersReactCommentsDAO();
 
-        return $userDao->isReactingComment($userId, $commentId);
+        return $commentDao->isReactingComment($userId, $commentId);
     }
 
     public function react()
@@ -90,25 +92,24 @@ class CommentController extends AbstractController
         if ($status != 0 && $status != 1) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videoDao = new VideoDAO();
-        $comment = $videoDao->getCommentById($commentId);
+        $commentDao = new UsersReactCommentsDAO();
+        $comment = $commentDao->getCommentById($commentId);
         if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
         }
-        $isReacting = $this->isReactingComment($userId, $commentId);
-        $userDao = new UserDAO();
+        $isReacting = $this->isReactingComment();
         if ($isReacting == -1) {//if there has been no reaction
-            $userDao->reactComment($userId, $commentId, $status);
+            $commentDao->reactComment($userId, $commentId, $status);
         } elseif ($isReacting == $status) { //if liking liked or disliking disliked video
-            $userDao->unreactComment($userId, $commentId);
+            $commentDao->unreactComment($userId, $commentId);
         } elseif ($isReacting != $status) { //if liking disliked or disliking liked video
-            $userDao->unreactComment($userId, $commentId);
-            $userDao->reactComment($userId, $commentId, 1 - $isReacting);
+            $commentDao->unreactComment($userId, $commentId);
+            $commentDao->reactComment($userId, $commentId, 1 - $isReacting);
         }
         $arr = [];
         $arr["stat"] = $this->isReactingComment();
-        $arr["likes"] = $userDao->getCommentReactions($commentId, 1);
-        $arr["dislikes"] = $userDao->getCommentReactions($commentId, 0);
+        $arr["likes"] = $commentDao->getCommentReactions($commentId, 1);
+        $arr["dislikes"] = $commentDao->getCommentReactions($commentId, 0);
 
         echo json_encode($arr);
     }

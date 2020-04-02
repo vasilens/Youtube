@@ -229,75 +229,7 @@ class VideoDAO extends AbstractDAO
         return false;
     }
 
-    /**
-     * @param Comment $comment
-     *
-     * @return string
-     */
-    public function addComment(Comment $comment)
-    {
-        $pdo = $this->getPDO();
-        $sql = "INSERT INTO comments
-                (video_id, owner_id, content, date)
-                VALUES (?, ?, ?, ?);";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($comment->getVideoId(), $comment->getOwnerId(), $comment->getContent(), $comment->getDate()));
 
-        return $pdo->lastInsertId();
-    }
-
-    /**
-     * @param int $comment_id
-     *
-     * @return array
-     */
-    public function getCommentById($comment_id)
-    {
-        $pdo = $this->getPDO();
-        $sql = "SELECT c.id, c.content, c.date, c.owner_id, u.name, u.avatar_url, 
-                    COALESCE(SUM(urc.status), 0) AS likes, COALESCE((COUNT(urc.status) - SUM(urc.status)), 0) AS dislikes FROM comments AS c 
-                    JOIN users AS u ON c.owner_id = u.id
-					LEFT JOIN users_react_comments AS urc ON c.id = urc.comment_id
-                    WHERE c.id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($comment_id));
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $row;
-    }
-
-    /**
-     * @param int $video_id
-     *
-     * @return array
-     */
-    public function getComments($video_id)
-    {
-        $pdo = $this->getPDO();
-        $sql = "SELECT c.id, c.content, c.date, c.owner_id, u.name, u.avatar_url, 
-                    COALESCE(SUM(urc.status), 0) AS likes, COALESCE((COUNT(urc.status) - SUM(urc.status)), 0) AS dislikes FROM comments AS c 
-                    JOIN users AS u ON c.owner_id = u.id
-					LEFT JOIN users_react_comments AS urc ON c.id = urc.comment_id
-                    WHERE c.video_id = ?
-                    GROUP BY c.id;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($video_id));
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $rows;
-    }
-
-    /**
-     * @param int $comment_id
-     * @param int $owner_id
-     */
-    public function deleteComment($comment_id, $owner_id)
-    {
-        $pdo = $this->getPDO();
-        $sql = "DELETE FROM comments WHERE id = ? AND owner_id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($comment_id, $owner_id));
-    }
 
     /**
      * @param int $video_id
