@@ -41,12 +41,12 @@ abstract class AbstractDAO
     }
 
     /**
-     * @param $query
-     * @param $params
+     * @param string $query
+     * @param array $params
      *
      * @return int
      */
-    public function rowCount ($query, $params)
+    public function rowCount($query, $params)
     {
         $this->prepareAndExecute($query, $params);
         return $this->statement->rowCount();
@@ -79,8 +79,6 @@ abstract class AbstractDAO
     /**
      * @param string $query
      * @param array  $params
-     *
-     * @return bool
      */
     public function prepareAndExecute($query, $params = [])
     {
@@ -117,7 +115,7 @@ abstract class AbstractDAO
     /**
      * @param array $params
      *
-     * @return string
+     * @return int
      */
     public function insert($params)
     {
@@ -132,19 +130,21 @@ abstract class AbstractDAO
                 (:$holders);
         ";
         $this->prepareAndExecute($query, $params);
+
+        return $this->lastInsertId();
     }
 
     /**
      * @param array $params
      *
-     * @return string
+     * @return int
      */
     public function delete($params)
     {
-        foreach ($params as $key=>$value) {
-            $params[$key] = "$key = :$key";
+        foreach ($params as $key => $value) {
+            $values[$key] = "$key = :$key";
         }
-        $columns = implode(' AND ', array_keys($params));
+        $columns = implode(' AND ', array_values($values));
 
         $query = "
             DELETE FROM 
@@ -152,28 +152,37 @@ abstract class AbstractDAO
             WHERE 
                 $columns;
         ";
-        $this->prepareAndExecute($query, $params);
+
+        return $this->rowCount($query, $params);
     }
 
     /**
      * @param array $params
      * @param array $conditions
      *
-     * @return string
+     * @return int
      */
     public function update($params, $conditions)
     {
-        $params = implode(', :', array_keys($params));
-        $conditions = implode(', :', array_keys($conditions));
+        foreach ($params as $key => $value) {
+            $parameters[$key] = "$key = :$key";
+        }
+        foreach ($conditions as $key => $value) {
+            $cond[$key] = "$key = :$key";
+        }
+        $columnsAndValues = implode(', ', array_values($parameters));
+        $condition = implode(', ', array_values($cond));
         $query = "
             UPDATE
-                 $this->table 
+                $this->table 
             SET 
-                :$params 
+                $columnsAndValues
             WHERE 
-                :$conditions;
+                $condition;
         ";
-        $this->prepareAndExecute($query, $params);
+        $allParams = array_merge($params, $conditions);
+
+        return $this->rowCount($query, $allParams);
     }
 
     /**
@@ -185,7 +194,8 @@ abstract class AbstractDAO
             SELECT
                 *
             FROM
-                $this->table";
+                $this->table;
+        ";
 
         return $this->fetchAllAssoc($query);
     }
@@ -204,7 +214,8 @@ abstract class AbstractDAO
             FROM
                 $this->table
             WHERE
-                id = :id";
+                id = :id;
+        ";
 
         return $this->fetchAssoc($query, $params);
     }
@@ -216,7 +227,7 @@ abstract class AbstractDAO
      */
     public function findBy($params)
     {
-        foreach ($params as $key=>$value) {
+        foreach ($params as $key => $value) {
             $params[$key] = "$key = :$key";
         }
         $columns = implode(' AND ', array_keys($params));
@@ -226,7 +237,8 @@ abstract class AbstractDAO
             FROM
                 $this->table
             WHERE
-                $columns;";
+                $columns;
+        ";
 
         return $this->fetchAllAssoc($query, $params);
     }
