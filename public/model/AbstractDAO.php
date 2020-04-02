@@ -49,6 +49,7 @@ abstract class AbstractDAO
     public function rowCount($query, $params)
     {
         $this->prepareAndExecute($query, $params);
+
         return $this->statement->rowCount();
     }
 
