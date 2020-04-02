@@ -40,7 +40,14 @@ abstract class AbstractDAO
         $this->pdo->beginTransaction();
     }
 
-    public function rowCount($query, $params){
+    /**
+     * @param $query
+     * @param $params
+     *
+     * @return int
+     */
+    public function rowCount ($query, $params)
+    {
         $this->prepareAndExecute($query, $params);
         return $this->statement->rowCount();
     }
@@ -168,50 +175,59 @@ abstract class AbstractDAO
         ";
         $this->prepareAndExecute($query, $params);
     }
-    public function findAllAssoc($params = null)
+
+    /**
+     * @return array
+     */
+    public function findAll()
     {
-        if($params == null){
-            $query = "
-                SELECT
-                    *
-                FROM 
-                    {$this->table}";
-        } else {
-            $query = "
+        $query = "
             SELECT
-                * 
+                *
             FROM
-                {$this->table}
-            WHERE 
-                id = :id;
-        ";
-        }
-        return $this->fetchAllAssoc(
-            $query,
-            $params
-        );
+                $this->table";
+
+        return $this->fetchAllAssoc($query);
     }
-    public function findOneAssoc($params = null)
+
+    /**
+     * @param int $id
+     *
+     * @return array
+     */
+    public function find($id)
     {
-        if($params == null){
-            $query = "
-                SELECT
-                    *
-                FROM 
-                    {$this->table}";
-        } else {
-            $query = "
+        $params['id'] = $id;
+        $query = "
             SELECT
-                * 
+                *
             FROM
-                {$this->table}
-            WHERE 
-                id = :id;
-        ";
+                $this->table
+            WHERE
+                id = :id";
+
+        return $this->fetchAssoc($query, $params);
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return array
+     */
+    public function findBy($params)
+    {
+        foreach ($params as $key=>$value) {
+            $params[$key] = "$key = :$key";
         }
-        return $this->fetchAssoc(
-            $query,
-            $params
-        );
+        $columns = implode(' AND ', array_keys($params));
+        $query = "
+            SELECT
+                *
+            FROM
+                $this->table
+            WHERE
+                $columns;";
+
+        return $this->fetchAllAssoc($query, $params);
     }
 }
