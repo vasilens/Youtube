@@ -6,6 +6,7 @@ use exceptions\InvalidArgumentException;
 use exceptions\AuthorizationException;
 use model\Comment;
 use model\CommentDAO;
+use model\User;
 use model\UsersReactCommentsDAO;
 use model\VideoDAO;
 
@@ -27,7 +28,6 @@ class CommentController extends AbstractController
             throw new InvalidArgumentException("Comment is empty.");
         }
         $usersReactCommentsDao = new UsersReactCommentsDAO();
-        $commentsDao = new CommentDAO();
         $videoDao = new VideoDAO();
         $video = $videoDao->getById($postParams["video_id"]);
         if (empty($video)) {
@@ -38,7 +38,7 @@ class CommentController extends AbstractController
         $comment->setVideoId($postParams["video_id"]);
         $comment->setOwnerId($postParams["owner_id"]);
         $comment->setDate(date("Y-m-d H:i:s"));
-        $commentId = $commentsDao->addComment($comment);
+        $commentId = $this->addComment($comment);
         $comment = $usersReactCommentsDao->getCommentById($commentId);
 
         echo json_encode($comment);
@@ -59,8 +59,7 @@ class CommentController extends AbstractController
         if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
         }
-        $commentsDao = new CommentDAO();
-        $commentsDao->deleteComment($commentId, $ownerId);
+        $this->deleteComment($commentId, $ownerId);
     }
 
     public function isReactingComment()
@@ -73,9 +72,8 @@ class CommentController extends AbstractController
         if (empty($userId) || empty($commentId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $commentDao = new UsersReactCommentsDAO();
 
-        return $commentDao->isReactingComment($userId, $commentId);
+        return $this->isReactingToComment($userId, $commentId);
     }
 
     public function react()
@@ -99,18 +97,127 @@ class CommentController extends AbstractController
         }
         $isReacting = $this->isReactingComment();
         if ($isReacting == -1) {//if there has been no reaction
-            $commentDao->reactComment($userId, $commentId, $status);
+            $this->reactComment($userId, $commentId, $status);
         } elseif ($isReacting == $status) { //if liking liked or disliking disliked video
-            $commentDao->unreactComment($userId, $commentId);
+            $this->unreactComment($userId, $commentId);
         } elseif ($isReacting != $status) { //if liking disliked or disliking liked video
-            $commentDao->unreactComment($userId, $commentId);
-            $commentDao->reactComment($userId, $commentId, 1 - $isReacting);
+            $this->unreactComment($userId, $commentId);
+            $this->reactComment($userId, $commentId, 1 - $isReacting);
         }
         $arr = [];
-        $arr["stat"] = $this->isReactingComment();
-        $arr["likes"] = $commentDao->getCommentReactions($commentId, 1);
-        $arr["dislikes"] = $commentDao->getCommentReactions($commentId, 0);
+        $arr["stat"] = $this->isReactingToComment($userId, $commentId);
+        $arr["likes"] = $this->getCommentReactions($commentId, 1);
+        $arr["dislikes"] = $this->getCommentReactions($commentId, 0);
 
         echo json_encode($arr);
+    }
+
+    /**
+     * @param Comment $comment
+     *
+     * @return int
+     */
+    public function addComment(Comment $comment): int
+    {
+        $dao = new CommentDAO();
+        $params = [
+            'video_id' => $comment->getVideoId(),
+            'owner_id' => $comment->getOwnerId(),
+            'content'  => $comment->getContent(),
+            'date'     => $comment->getDate()
+        ];
+
+        return $dao->insert($params);
+    }
+
+    /**
+     * @param int $comment_id
+     * @param int $owner_id
+     *
+     * @return int
+     */
+    public function deleteComment(int $comment_id, int $owner_id): int
+    {
+        $dao = new CommentDAO();
+        $params = [
+            'id'       => $comment_id,
+            'owner_id' => $owner_id
+        ];
+
+        return $dao->delete($params);
+    }
+
+    /**
+     * @param int $commentId
+     * @param int $status
+     *
+     * @return int
+     */
+    public function getCommentReactions(int $commentId, int $status): int
+    {
+        $dao = new UsersReactCommentsDAO();
+        $params = [
+            'comment_id' => $commentId,
+            'status'     => $status
+        ];
+        $row = $this->findBy($params);
+        if ($row) {
+
+            return $row["count"];
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param int $userId
+     * @param int $commentId
+     */
+    public function unreactComment(int $userId, int $commentId)
+    {
+        $dao = new UsersReactCommentsDAO();
+        $params = [
+            'user_id'    => $userId,
+            'comment_id' => $commentId
+        ];
+        $dao->delete($params);
+    }
+
+    /**
+     * @param int $userId
+     * @param int $commentId
+     * @param int $status
+     */
+    public function reactComment(int $userId, int $commentId, int $status)
+    {
+        $dao = new UsersReactCommentsDAO();
+        $params = [
+            'user_id'    => $userId,
+            'comment_id' => $commentId,
+            'status'     => $status
+        ];
+        $dao->insert($params);
+    }
+
+    /**
+     * @param int $userId
+     * @param int $commentId
+     *
+     * @return int
+     */
+    public function isReactingToComment(int $userId, int $commentId): int
+    {
+        $dao = new UsersReactCommentsDAO();
+        $params = [
+            'user_id'    => $userId,
+            'comment_id' => $commentId
+        ];
+        $row = $dao->findBy($params);
+        if ($row) {
+
+            return $row["status"];
+        }
+
+        return -1;
     }
 }
