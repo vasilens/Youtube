@@ -3,6 +3,7 @@
 namespace model;
 
 use PDO;
+use PDOStatement;
 
 abstract class AbstractDAO
 {
@@ -12,7 +13,7 @@ abstract class AbstractDAO
     private $pdo;
 
     /**
-     * @var \PDOStatement
+     * @var PDOStatement
      */
     private $statement;
 
@@ -42,11 +43,11 @@ abstract class AbstractDAO
 
     /**
      * @param string $query
-     * @param array $params
+     * @param array  $params
      *
      * @return int
      */
-    public function rowCount($query, $params)
+    public function rowCount(string $query, array $params): int
     {
         $this->prepareAndExecute($query, $params);
 
@@ -72,7 +73,7 @@ abstract class AbstractDAO
     /**
      * @return int
      */
-    public function lastInsertId()
+    public function lastInsertId(): int
     {
         return $this->pdo->lastInsertId();
     }
@@ -81,7 +82,7 @@ abstract class AbstractDAO
      * @param string $query
      * @param array  $params
      */
-    public function prepareAndExecute($query, $params = [])
+    public function prepareAndExecute(string $query, array $params = [])
     {
         $this->statement = $this->pdo->prepare($query);
         $this->statement->execute($params);
@@ -93,11 +94,11 @@ abstract class AbstractDAO
      *
      * @return array
      */
-    public function fetchAssoc($query, $params = [])
+    public function fetchAssoc(string $query, array $params = []): array
     {
         $this->prepareAndExecute($query, $params);
 
-        return $this->statement->fetch(\PDO::FETCH_ASSOC);
+        return $this->statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -106,11 +107,11 @@ abstract class AbstractDAO
      *
      * @return array
      */
-    public function fetchAllAssoc($query, $params = [])
+    public function fetchAllAssoc(string $query, array $params = []): array
     {
         $this->prepareAndExecute($query, $params);
 
-        return $this->statement->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -118,17 +119,17 @@ abstract class AbstractDAO
      *
      * @return int
      */
-    public function insert($params)
+    public function insert(array $params): int
     {
         $columns = implode(', ', array_keys($params));
         $holders = implode(', :', array_keys($params));
 
         $query =  "
             INSERT INTO 
-                 $this->table 
-                ($columns) 
+                 {$this->table} 
+                ({$columns}) 
             VALUES 
-                (:$holders);
+                (:{$holders});
         ";
         $this->prepareAndExecute($query, $params);
 
@@ -140,7 +141,7 @@ abstract class AbstractDAO
      *
      * @return int
      */
-    public function delete($params)
+    public function delete(array $params): int
     {
         foreach ($params as $key => $value) {
             $values[$key] = "$key = :$key";
@@ -149,9 +150,9 @@ abstract class AbstractDAO
 
         $query = "
             DELETE FROM 
-                $this->table 
+                {$this->table} 
             WHERE 
-                $columns;
+                {$columns};
         ";
 
         return $this->rowCount($query, $params);
@@ -163,7 +164,7 @@ abstract class AbstractDAO
      *
      * @return int
      */
-    public function update($params, $conditions)
+    public function update(array $params, array $conditions): int
     {
         foreach ($params as $key => $value) {
             $parameters[$key] = "$key = :$key";
@@ -175,11 +176,11 @@ abstract class AbstractDAO
         $condition = implode(', ', array_values($cond));
         $query = "
             UPDATE
-                $this->table 
+                {$this->table} 
             SET 
-                $columnsAndValues
+                {$columnsAndValues}
             WHERE 
-                $condition;
+                {$condition};
         ";
         $allParams = array_merge($params, $conditions);
 
@@ -189,13 +190,13 @@ abstract class AbstractDAO
     /**
      * @return array
      */
-    public function findAll()
+    public function findAll(): array
     {
         $query = "
             SELECT
                 *
             FROM
-                $this->table;
+                {$this->table};
         ";
 
         return $this->fetchAllAssoc($query);
@@ -206,14 +207,14 @@ abstract class AbstractDAO
      *
      * @return array
      */
-    public function find($id)
+    public function find(int $id): array
     {
         $params['id'] = $id;
         $query = "
             SELECT
                 *
             FROM
-                $this->table
+                {$this->table}
             WHERE
                 id = :id;
         ";
@@ -226,7 +227,7 @@ abstract class AbstractDAO
      *
      * @return array
      */
-    public function findBy($params)
+    public function findBy(array $params): array
     {
         foreach ($params as $key => $value) {
             $params[$key] = "$key = :$key";
@@ -236,9 +237,9 @@ abstract class AbstractDAO
             SELECT
                 *
             FROM
-                $this->table
+                {$this->table}
             WHERE
-                $columns;
+                {$columns};
         ";
 
         return $this->fetchAllAssoc($query, $params);
