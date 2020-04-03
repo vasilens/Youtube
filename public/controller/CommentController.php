@@ -38,7 +38,15 @@ class CommentController extends AbstractController
         $comment->setVideoId($postParams["video_id"]);
         $comment->setOwnerId($postParams["owner_id"]);
         $comment->setDate(date("Y-m-d H:i:s"));
-        $commentId = $this->addComment($comment);
+        $commentDao = new CommentDAO();
+        $params = [
+            'video_id' => $comment->getVideoId(),
+            'owner_id' => $comment->getOwnerId(),
+            'content'  => $comment->getContent(),
+            'date'     => $comment->getDate()
+        ];
+
+        $commentId = $commentDao->insert($params);
         $comment = $usersReactCommentsDao->getCommentById($commentId);
 
         echo json_encode($comment);
@@ -59,7 +67,12 @@ class CommentController extends AbstractController
         if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
         }
-        $this->deleteComment($commentId, $ownerId);
+        $commentDao = new CommentDAO();
+        $params = [
+            'id'       => $commentId,
+            'owner_id' => $ownerId
+        ];
+        $commentDao->delete($params);
     }
 
     public function isReactingComment()
@@ -72,8 +85,19 @@ class CommentController extends AbstractController
         if (empty($userId) || empty($commentId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
+        $commentDao = new UsersReactCommentsDAO();
+        $params = [
+            'user_id'    => $userId,
+            'comment_id' => $commentId
+        ];
+        $row = $commentDao->findBy($params);
+        if ($row) {
 
-        return $this->isReactingToComment($userId, $commentId);
+            return $row["status"];
+        } else {
+
+        return -1;
+        }
     }
 
     public function react()
@@ -97,18 +121,63 @@ class CommentController extends AbstractController
         }
         $isReacting = $this->isReactingComment();
         if ($isReacting == -1) {//if there has been no reaction
-            $this->reactComment($userId, $commentId, $status);
+            $params = [
+                'user_id'    => $userId,
+                'comment_id' => $commentId,
+                'status'     => $status
+            ];
+            $commentDao->insert($params);
         } elseif ($isReacting == $status) { //if liking liked or disliking disliked video
-            $this->unreactComment($userId, $commentId);
+            $params = [
+                'user_id'    => $userId,
+                'comment_id' => $commentId
+            ];
+            $commentDao->delete($params);
         } elseif ($isReacting != $status) { //if liking disliked or disliking liked video
-            $this->unreactComment($userId, $commentId);
-            $this->reactComment($userId, $commentId, 1 - $isReacting);
+            $params = [
+                'user_id'    => $userId,
+                'comment_id' => $commentId
+            ];
+            $commentDao->delete($params);
+            $params = [
+                'user_id'    => $userId,
+                'comment_id' => $commentId,
+                'status'     => $status
+            ];
+            $commentDao->insert($params);
         }
         $arr = [];
-        $arr["stat"] = $this->isReactingToComment($userId, $commentId);
-        $arr["likes"] = $this->getCommentReactions($commentId, 1);
-        $arr["dislikes"] = $this->getCommentReactions($commentId, 0);
+        $params = [
+            'user_id'    => $userId,
+            'comment_id' => $commentId
+        ];
+        $row = $commentDao->findBy($params);
+        if ($row) {
+            $arr["stat"] = $row["status"];
+        } else {
+        $arr["stat"] = -1;
+        }
+        $params = [
+            'comment_id' => $commentId,
+            'status'     => $status
+        ];
+        $row = $commentDao->findBy($params);
+        if ($row) {
 
+            $arr["likes"] = $row["count"];
+        } else {
+        $arr["likes"] = 0;
+        }
+        $params = [
+            'comment_id' => $commentId,
+            'status'     => $status
+        ];
+        $row = $commentDao->findBy($params);
+        if ($row) {
+            $arr["dislikes"] = $row["count"];
+        } else {
+        $arr["dislikes"] = 0;
+        }
         echo json_encode($arr);
     }
 
