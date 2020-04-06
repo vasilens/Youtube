@@ -67,6 +67,30 @@ class UsersReactCommentsDAO extends AbstractDAO
         return $this->fetchAssoc($query, $params);
     }
 
+    /**
+     * @param int $comment_id
+     * @param int $status
+     *
+     * @return int
+     */
+    public function getCommentReactions($comment_id, $status)
+    {
+        $params = [
+            'comment_id' => $comment_id,
+            'status'     => $status
+        ];
+        $query = "
+            SELECT
+                COUNT(*) AS count
+            FROM
+                {$this->table} 
+            WHERE
+                comment_id = :comment_id AND status = :status;";
+        $row = $this->fetchAssoc($query, $params);
+
+        return $row['count'] ?? 0;
+    }
+
     protected function setTable()
     {
         $this->table = 'users_react_comments';

@@ -2,84 +2,10 @@
 
 namespace model;
 
-use PDO;
 use PDOException;
 
 class UserDAO extends AbstractDAO
 {
-    /**
-     * @return array
-     */
-    public function getAll()
-    {
-        return $this->findAllAssoc();
-    }
-
-    /**
-     * @param string $email
-     *
-     * @return array | bool
-     */
-    public function checkUser($email)
-    {
-        $params = [
-            'email' => $email
-        ];
-        $query = "
-            SELECT
-                id,
-                username,
-                email,
-                password,
-                name,
-                avatar_url
-            FROM
-                users
-            WHERE
-                email = :email";
-       $row = $this->fetchAssoc(
-           $query,
-           $params
-       );
-       if (empty($row)) {
-
-           return false;
-       }
-
-       return $row;
-    }
-
-    /**
-     * @param string $username
-     *
-     * @return array | bool
-     */
-    public function checkUsername($username)
-    {
-        $params = [
-          'username' => $username
-        ];
-        $query = "
-            SELECT
-                id,
-                username,
-                email
-            FROM
-                users
-            WHERE
-                username = :username";
-        $row = $this->fetchAssoc(
-            $query,
-            $params
-        );
-        if (empty($row)) {
-
-            return false;
-        }
-
-        return $row;
-    }
-
     /**
      * @param User $user
      *
@@ -152,166 +78,6 @@ class UserDAO extends AbstractDAO
     }
 
     /**
-     * @param int $id
-     *
-     * @return array
-     */
-    public function getById($id)
-    {
-        $params = [
-          'id' => $id
-        ];
-        //users
-        return $this->findOneAssoc($params);
-    }
-
-    /**
-     * @param User $user
-     */
-    public function editUser(User $user)
-    {
-        $username = $user->getUsername();
-        $email  = $user->getEmail();
-        $password   = $user->getPassword();
-        $full_name = $user->getFullName();
-        $avatar_url = $user->getAvatarUrl();
-        $id = $user->getId();
-        $params = [
-            'username'   => $user->getUsername(),
-            'email'      => $user->getEmail(),
-            'password'   => $user->getPassword(),
-            'name'       => $user->getFullName(),
-            'avatar_url' => $user->getAvatarUrl()
-        ];
-        $conditions = [
-            'id' => $user->getId()
-        ];
-        //users
-        $this->update(
-            $params,
-            $conditions
-        );
-    }
-
-    /**
-     * @param int $follower_id
-     * @param int $followed_id
-     */
-    public function followUser($follower_id, $followed_id)
-    {
-        $params = [
-            'follower_id' => $follower_id,
-            'followed_id' => $followed_id
-        ];
-        //users_follow_users
-        $this->insert($params);
-    }
-
-    /**
-     * @param int $follower_id
-     * @param int $followed_id
-     */
-    public function unfollowUser($follower_id, $followed_id)
-    {
-        $params = [
-            'follower_id' => $follower_id,
-            'followed_id' => $followed_id
-        ];
-        //users_follow_users
-        $this->delete($params);
-    }
-
-    /**
-     * @param int $follower_id
-     * @param int $followed_id
-     *
-     * @return bool
-     */
-    public function isFollowing($follower_id, $followed_id)
-    {
-        $params = [
-            'follower_id' => $follower_id,
-            'followed_id' => $followed_id
-        ];
-        $query = "
-            SELECT
-                followed_id
-            FROM
-                users_follow_users
-            WHERE
-                follower_id = :follower_id AND followed_id = :followed_id;";
-        $row = $this->fetchAssoc(
-            $query,
-            $params
-        );
-        if ($row){
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param int $user_id
-     * @param int $video_id
-     *
-     * @return int
-     */
-    public function isReacting($user_id, $video_id)
-    {
-        $params = [
-            'user_id'  => $user_id,
-            'video_id' => $video_id
-        ];
-        $query = "
-            SELECT
-                status
-            FROM
-                users_react_videos
-            WHERE
-                user_id = :user_id AND video_id = :video_id;";
-        $row = $this->fetchAssoc(
-            $query,
-            $params
-        );
-        if ($row) {
-
-            return $row["status"];
-        }
-
-        return -1;
-    }
-
-    /**
-     * @param int $user_id
-     * @param int $video_id
-     * @param int $status
-     */
-    public function reactVideo($user_id, $video_id, $status){
-        $params = [
-            'user_id'  => $user_id,
-            'video_id' => $video_id,
-            'status'   => $status
-        ];
-        //users_react_videos
-        $this->insert($params);
-    }
-
-    /**
-     * @param int $user_id
-     * @param int $video_id
-     */
-    public function unreactVideo($user_id, $video_id){
-        $params = [
-            'user_id'  => $user_id,
-            'video_id' => $video_id
-        ];
-        //users_react_videos
-        $this->delete($params);
-    }
-
-    /**
      * @param int $logged_user
      *
      * @return array | bool
@@ -321,8 +87,17 @@ class UserDAO extends AbstractDAO
         $params = [
             'follower_id' => $logged_user
         ];
-        $query = "SELECT u.username, u.avatar_url, u.name, ufu.followed_id FROM users_follow_users AS ufu
-                JOIN users AS u ON u.id = ufu.followed_id WHERE ufu.follower_id = :follower_id;";
+        $query = "
+            SELECT
+                u.username,
+                u.avatar_url,
+                u.name,
+                ufu.followed_id
+            FROM
+                users_follow_users AS ufu
+                JOIN users AS u ON u.id = ufu.followed_id
+            WHERE
+                ufu.follower_id = :follower_id;";
         $row = $this->fetchAllAssoc(
             $query,
             $params
@@ -337,6 +112,7 @@ class UserDAO extends AbstractDAO
 
     /**
      * @param int $followed_id
+     *
      * @return array
      */
     public function getFollowedUser($followed_id)
@@ -362,6 +138,7 @@ class UserDAO extends AbstractDAO
                 JOIN videos AS v ON v.owner_id = u.id
             WHERE
                 u.id = :followed_id;";
+
         return $this->fetchAllAssoc(
             $query,
             $params
@@ -380,7 +157,6 @@ class UserDAO extends AbstractDAO
             $params = [
                 'video_id' => $video_id,
                 'user_id'  => $user_id,
-                'date'     => $date
             ];
             $query = "
                 SELECT
@@ -389,6 +165,11 @@ class UserDAO extends AbstractDAO
                     users_watch_videos
                 WHERE
                     video_id = :video_id AND user_id = :user_id;";
+            $params2 = [
+                'video_id' => $video_id,
+                'user_id'  => $user_id,
+                'date'     => $date
+            ];
             $query2 = "
                 INSERT INTO
                     users_watch_videos (
@@ -401,6 +182,11 @@ class UserDAO extends AbstractDAO
                     :user_id,
                     :date
                 )";
+            $params3 = [
+                'video_id' => $video_id,
+                'user_id'  => $user_id,
+                'date'     => $date
+            ];
             $query3 = "
                 UPDATE
                     users_watch_videos
@@ -408,11 +194,11 @@ class UserDAO extends AbstractDAO
                     date = :date
                 WHERE
                     video_id = :video_id AND user_id = :user_id;";
-            if ($this->rowCount($query, $params)) {
-                $this->prepareAndExecute($query2, $params);
+            if (!$this->rowCount($query, $params)) {
+                $this->prepareAndExecute($query2, $params2);
             }
             else {
-                $this->prepareAndExecute($query3, $params);
+                $this->prepareAndExecute($query3, $params3);
             }
             $this->commit();
         } catch (PDOException $e) {
@@ -421,9 +207,6 @@ class UserDAO extends AbstractDAO
         }
     }
 
-    /**
-     *
-     */
     protected function setTable()
     {
         $this->table = 'users';

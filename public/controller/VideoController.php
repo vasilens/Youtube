@@ -6,8 +6,11 @@ include_once "fileHandler.php";
 
 use exceptions\AuthorizationException;
 use exceptions\InvalidArgumentException;
-use model\PlaylistDAO;
+use model\CategoryDAO;
 use model\UserDAO;
+use model\UsersFollowUsersDAO;
+use model\UsersReactCommentsDAO;
+use model\UsersReactVideosDAO;
 use model\Video;
 use model\VideoDAO;
 
@@ -41,17 +44,18 @@ class VideoController extends AbstractController
                 $msg = "Video not uploaded";
                 $error = true;
             }
+            $videoDao = new VideoDAO();
+            $categoryDao = new CategoryDAO();
             if ($error) {
-                $videoDao = new VideoDAO();
-                $categories = $videoDao->getCategories();
+                $categories = $categoryDao->findAll();
 
                 include_once "view/upload.php";
 
                 echo $msg;
             } else {
-                $videoDao = new VideoDAO();
-                $categoryExists = $videoDao->getCategoryById($postParams["category_id"]);
-                if (!$categoryExists) {
+
+                $categoryExists = $categoryDao->find($postParams['category_id']);
+                if (empty($categoryExists)) {
                     throw new InvalidArgumentException("Invalid category.");
                 }
                 $video = new Video();
@@ -63,7 +67,18 @@ class VideoController extends AbstractController
                 $video->setDuration(0);
                 $video->setVideoUrl(uploadVideo("video", $_SESSION["logged_user"]["username"]));
                 $video->setThumbnailUrl(uploadImage("thumbnail", $_SESSION["logged_user"]["username"]));
-                $videoDao->add($video);
+                $params = [
+                    'title'         => $video->getTitle(),
+                    'description'   => $video->getDescription(),
+                    'date_uploaded' => $video->getDateUploaded(),
+                    'owner_id'      => $video->getOwnerId(),
+                    'category_id'   => $video->getCategoryId(),
+                    'video_url'     => $video->getVideoUrl(),
+                    'duration'      => $video->getDuration(),
+                    'thumbnail_url' => $video->getThumbnailUrl()
+                ];
+                $video_id = $videoDao->insert($params);
+                $video->setId($video_id);
 
                 include_once "view/main.php";
 
@@ -89,6 +104,7 @@ class VideoController extends AbstractController
         if (empty($id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
+        $categoryDao = new CategoryDAO();
         $videoDao = new VideoDAO();
         $video = $videoDao->getById($id);
         if (empty($video)) {
@@ -97,7 +113,7 @@ class VideoController extends AbstractController
         if ($video["owner_id"] != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
-        $categories = $videoDao->getCategories();
+        $categories = $categoryDao->findAll();
 
         include_once "view/editVideo.php";
     }
@@ -129,10 +145,11 @@ class VideoController extends AbstractController
             } elseif ($postParams["owner_id"] != $_SESSION["logged_user"]["id"]) {
                 throw new AuthorizationException("Unauthorized user.");
             }
+            $videoDao = new VideoDAO();
+            $categoryDao = new CategoryDAO();
             if ($error) {
-                $videoDao = new VideoDAO();
                 $video = $videoDao->getById($postParams["id"]);
-                $categories = $videoDao->getCategories();
+                $categories = $categoryDao->findAll();
 
                 include_once "view/editVideo.php";
 
@@ -140,7 +157,7 @@ class VideoController extends AbstractController
             }
             if (!$error) {
                 $videoDao = new VideoDAO();
-                $categoryExists = $videoDao->getCategoryById($postParams["category_id"]);
+                $categoryExists = $categoryDao->find($postParams["category_id"]);
                 if (!$categoryExists) {
                     throw new InvalidArgumentException("Invalid category.");
                 }
@@ -159,7 +176,16 @@ class VideoController extends AbstractController
                 if (!($video->getThumbnailUrl())) {
                     $video->setThumbnailUrl($postParams["thumbnail_url"]);
                 }
-                $videoDao->edit($video);
+                $params = [
+                    'title'         => $video->getTitle(),
+                    'description'   => $video->getDescription(),
+                    'category_id'   => $video->getCategoryId(),
+                    'thumbnail_url' => $video->getThumbnailUrl()
+                ];
+                $conditions = [
+                    'id' => $video->getId()
+                ];
+                $videoDao->update($params, $conditions);
 
                 include_once "view/main.php";
 
@@ -192,7 +218,11 @@ class VideoController extends AbstractController
         if ($video["owner_id"] != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
-        $videoDao->deleteVideo($id, $ownerId);
+        $params = [
+            'id' => $id,
+            'owner_id' => $ownerId
+        ];
+        $videoDao->delete($params);
 
         include_once "view/main.php";
 
@@ -245,6 +275,7 @@ class VideoController extends AbstractController
             throw new InvalidArgumentException("Invalid arguments.");
         }
         $videoDao = new VideoDAO();
+        $commentDao = new UsersReactCommentsDAO();
         $video = $videoDao->getById($id);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
@@ -252,14 +283,24 @@ class VideoController extends AbstractController
         $videoDao->updateViews($id);
         $video["likes"] = $videoDao->getReactions($id, 1);
         $video["dislikes"] = $videoDao->getReactions($id, 0);
-        $comments = $videoDao->getComments($id);
-        $userDao = UserDAO::getInstance();
+        $comments = $commentDao->getComments($id);
+        $userDao = new UserDAO();
+        $usersReactVideos = new UsersReactVideosDAO();
+        $usersFollowUsersDao = new UsersFollowUsersDAO();
         if (isset($_SESSION['logged_user'])) {
             $userId = $_SESSION["logged_user"]["id"];
             $userDao->addToHistory($id, $userId, date("Y-m-d H:i:s"));
         }
-        $video["isFollowed"] = $userDao->isFollowing(null,$video["owner_id"]);
-        $video["isReacting"] = $userDao->isReacting(null, $id);
+        $params = [
+            'follower_id' => null,
+            'followed_id' => $video['owner_id']
+        ];
+        $video['isFollowed'] = $usersFollowUsersDao->findBy($params, true);
+        $params = [
+            'user_id'  => null,
+            'video_id' => $id
+        ];
+        $video['isReacting'] = $usersReactVideos->findBy($params, true);
 
         include_once "view/video.php";
     }
@@ -277,8 +318,8 @@ class VideoController extends AbstractController
                 $orderBy .= " DESC";
             }
         }
-        $dao = new VideoDAO();
-        $videos = $dao->getAll($orderBy);
+        $videoDao = new VideoDAO();
+        $videos = $videoDao->getAll($orderBy);
         $action = "getAll";
         $orderBy = true;
 

@@ -31,7 +31,7 @@ if (isset($msg)) {
                 <input type="submit" class="fadeIn fourth" name="login" value="Log In">
             </form>
             <div id="formFooter">
-                Don't have an account? <a class="underlineHover" href='/user/register'>Sign Up</a>
+                Don't have an account? <a class="underlineHover" href='/view/register'>Sign Up</a>
             </div>
         </div>
     </div>
