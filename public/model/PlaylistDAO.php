@@ -4,6 +4,12 @@ namespace model;
 
 class PlaylistDAO extends AbstractDAO
 {
+
+    protected function setTable()
+    {
+        $this->table = "playlists";
+    }
+
     /**
      * @param int $playlistId
      *
@@ -37,10 +43,5 @@ class PlaylistDAO extends AbstractDAO
             $query,
             $params
         );
-    }
-
-    protected function setTable()
-    {
-        $this->table = "playlists";
     }
 }

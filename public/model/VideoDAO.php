@@ -4,6 +4,12 @@ namespace model;
 
 class VideoDAO extends AbstractDAO
 {
+
+    protected function setTable()
+    {
+        $this->table = 'videos';
+    }
+
     /**
      * @param int           $ownerId
      * @param string | null $orderby
@@ -268,10 +274,5 @@ class VideoDAO extends AbstractDAO
                 ORDER BY atp.date_added;";
 
         return $this->fetchAllAssoc($query, $params);
-    }
-
-    protected function setTable()
-    {
-        $this->table = 'videos';
     }
 }

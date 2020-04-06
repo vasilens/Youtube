@@ -92,33 +92,7 @@ class SearchDAO extends AbstractDAO
             $params
         );
     }
-
-    /**
-     * @return array
-     */
-    public function getAllPlaylists()
-    {
-        return $this->findAllAssoc();
-    }
-
-    /**
-     * @return array
-     */
-    public function getAllVideos()
-    {
-        return $this->findAllAssoc();
-    }
-
-    /**
-     * @return array
-     */
-    public function getAllUsers()
-    {
-        return $this->findAllAssoc();
-    }
-
     protected function setTable()
     {
-        // TODO: Implement setTable() method.
     }
 }

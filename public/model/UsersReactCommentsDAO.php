@@ -4,6 +4,12 @@ namespace model;
 
 class UsersReactCommentsDAO extends AbstractDAO
 {
+
+    protected function setTable()
+    {
+        $this->table = 'users_react_comments';
+    }
+
     /**
      * @param int $videoId
      *
@@ -89,10 +95,5 @@ class UsersReactCommentsDAO extends AbstractDAO
         $row = $this->fetchAssoc($query, $params);
 
         return $row['count'] ?? 0;
-    }
-
-    protected function setTable()
-    {
-        $this->table = 'users_react_comments';
     }
 }

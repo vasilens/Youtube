@@ -6,6 +6,12 @@ use PDOException;
 
 class UserDAO extends AbstractDAO
 {
+
+    protected function setTable()
+    {
+        $this->table = 'users';
+    }
+
     /**
      * @param User $user
      *
@@ -205,10 +211,5 @@ class UserDAO extends AbstractDAO
             $this->rollBack();
             throw new PDOException();
         }
-    }
-
-    protected function setTable()
-    {
-        $this->table = 'users';
     }
 }
