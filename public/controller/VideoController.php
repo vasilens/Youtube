@@ -13,6 +13,7 @@ use model\UsersReactCommentsDAO;
 use model\UsersReactVideosDAO;
 use model\Video;
 use model\VideoDAO;
+use exceptions\InvalidFileException;
 
 class VideoController extends AbstractController
 {
@@ -21,7 +22,7 @@ class VideoController extends AbstractController
      *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
-     * @throws \exceptions\InvalidFileException
+     * @throws InvalidFileException
      */
     public function upload()
     {
@@ -127,7 +128,7 @@ class VideoController extends AbstractController
      *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
-     * @throws \exceptions\InvalidFileException
+     * @throws InvalidFileException
      */
     public function edit()
     {

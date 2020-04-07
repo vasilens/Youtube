@@ -223,9 +223,9 @@ class UserController extends AbstractController
                 return;
             }
             $password = $user['password'];
-            if(password_verify($postParams['password'], $password)){
+            if (password_verify($postParams['password'], $password)) {
                 $newAvatar = $this->uploadImage("avatar", $postParams['username']);
-                if (!$newAvatar){
+                if (!$newAvatar) {
                     $newAvatar = $_SESSION["logged_user"]["avatar_url"];
                 }
                 $username = $postParams["username"];
@@ -321,10 +321,10 @@ class UserController extends AbstractController
     }
 
     /**
-     * @param $username
-     * @param $email
-     * @param null $password
-     * @param null $cpassword
+     * @param string        $username
+     * @param string        $email
+     * @param string | null $password
+     * @param string | null $cpassword
      *
      * @return string
      */
@@ -403,8 +403,7 @@ class UserController extends AbstractController
             'followed_id' => $followedId
         ];
         $row = $usersFollowUsersDao->findBy($params);
-        if ($row){
-
+        if ($row) {
             return true;
         }
 
@@ -468,8 +467,8 @@ class UserController extends AbstractController
     }
 
     /**
-     * @param $userId
-     * @param $videoId
+     * @param int $userId
+     * @param int $videoId
      *
      * @return int
      *
@@ -583,6 +582,7 @@ class UserController extends AbstractController
 
     /**
      * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function clickedUser()

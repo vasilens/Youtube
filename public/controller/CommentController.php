@@ -108,12 +108,10 @@ class CommentController extends AbstractController
         ];
         $row = $commentDao->findBy($params);
         if ($row) {
-
             return $row[0]["status"];
-        } else {
-
-            return -1;
         }
+
+        return -1;
     }
 
     /**

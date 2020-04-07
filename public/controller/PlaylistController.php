@@ -121,7 +121,7 @@ class PlaylistController extends AbstractController
         $playlist = $playlistDao->find($playlistId);
         if (empty($playlist)) {
             throw new InvalidArgumentException("Invalid playlist.");
-            }
+        }
         if ($playlist["owner_id"] != $_SESSION["logged_user"]["id"]) {
             throw new AuthorizationException("Unauthorized user.");
         }
