@@ -11,6 +11,13 @@ use model\VideoDAO;
 
 class CommentController extends AbstractController
 {
+
+    /**
+     * @return void
+     *
+     * @throws AuthorizationException
+     * @throws InvalidArgumentException
+     */
     public function add()
     {
         $postParams = $this->request->getPostParams();
@@ -51,6 +58,11 @@ class CommentController extends AbstractController
         echo json_encode($comment);
     }
 
+    /**
+     * @return void
+     *
+     * @throws InvalidArgumentException
+     */
     public function delete()
     {
         $getParams = $this->request->getGetParams();
@@ -74,6 +86,11 @@ class CommentController extends AbstractController
         $commentDao->delete($params);
     }
 
+    /**
+     * @return int|mixed
+     *
+     * @throws InvalidArgumentException
+     */
     public function isReactingComment()
     {
         $getParams = $this->request->getGetParams();
@@ -99,6 +116,11 @@ class CommentController extends AbstractController
         }
     }
 
+    /**
+     * @return void
+     *
+     * @throws InvalidArgumentException
+     */
     public function react()
     {
         $getParams = $this->request->getGetParams();

@@ -14,6 +14,8 @@ use model\VideoDAO;
 class UserController extends AbstractController
 {
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function login()
@@ -66,6 +68,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidFileException
      */
     public function register()
@@ -151,6 +155,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
      * @throws InvalidFileException
@@ -303,6 +309,9 @@ class UserController extends AbstractController
         return false;
     }
 
+    /**
+     * @return void
+     */
     public function logout()
     {
         unset($_SESSION);
@@ -342,6 +351,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function getById()
@@ -401,6 +412,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function follow()
@@ -427,6 +440,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function unfollow()
@@ -483,6 +498,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function reactVideo()
@@ -544,6 +561,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function subscriptions()
@@ -563,6 +582,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
      * @throws InvalidArgumentException
      */
     public function clickedUser()

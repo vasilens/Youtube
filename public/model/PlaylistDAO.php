@@ -4,7 +4,9 @@ namespace model;
 
 class PlaylistDAO extends AbstractDAO
 {
-
+    /**
+     * @return void
+     */
     protected function setTable()
     {
         $this->table = "playlists";
@@ -37,6 +39,33 @@ class PlaylistDAO extends AbstractDAO
             WHERE 
                 atp.playlist_id = :playlistId
                 ORDER BY atp.date_added;
+        ";
+
+        return $this->fetchAllAssoc(
+            $query,
+            $params
+        );
+    }
+
+    /**
+     * @param string $searchQuery
+     *
+     * @return array
+     */
+    public function getSearchedPlaylists($searchQuery)
+    {
+        $params = [
+            'searchQuery' => $searchQuery
+        ];
+        $query = "
+            SELECT
+                p.id,
+                p.playlist_title,
+                p.date_created 
+            FROM 
+                playlists AS p
+            WHERE
+                p.playlist_title LIKE :searchQuery;
         ";
 
         return $this->fetchAllAssoc(

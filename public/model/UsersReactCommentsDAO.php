@@ -4,7 +4,9 @@ namespace model;
 
 class UsersReactCommentsDAO extends AbstractDAO
 {
-
+    /**
+     * @return void
+     */
     protected function setTable()
     {
         $this->table = 'users_react_comments';

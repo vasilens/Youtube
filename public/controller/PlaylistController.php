@@ -12,6 +12,8 @@ use model\VideoDAO;
 class PlaylistController extends AbstractController
 {
     /**
+     * @return void
+     *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
      */
@@ -58,6 +60,9 @@ class PlaylistController extends AbstractController
         }
     }
 
+    /**
+     * @return void
+     */
     public function getMyPlaylists()
     {
         $ownerId = $_SESSION["logged_user"]["id"];
@@ -71,6 +76,8 @@ class PlaylistController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function clickedPlaylist()
@@ -93,6 +100,8 @@ class PlaylistController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
      */
@@ -145,6 +154,9 @@ class PlaylistController extends AbstractController
         }
     }
 
+    /**
+     * @return void
+     */
     public function getMyPlaylistsJSON()
     {
         $ownerId = $_SESSION["logged_user"]["id"];

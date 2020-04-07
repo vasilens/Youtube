@@ -17,6 +17,8 @@ use model\VideoDAO;
 class VideoController extends AbstractController
 {
     /**
+     * @return void
+     *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
      * @throws \exceptions\InvalidFileException
@@ -92,6 +94,8 @@ class VideoController extends AbstractController
     /**
      * @param null $id
      *
+     * @return void
+     *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
      */
@@ -119,6 +123,8 @@ class VideoController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
      * @throws \exceptions\InvalidFileException
@@ -197,6 +203,8 @@ class VideoController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
      */
@@ -229,6 +237,9 @@ class VideoController extends AbstractController
         echo "Delete successful.";
     }
 
+    /**
+     * @return void
+     */
     public function getByOwnerId()
     {
         $ownerId = $_SESSION["logged_user"]["id"];
@@ -262,6 +273,8 @@ class VideoController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function getById()
@@ -305,6 +318,9 @@ class VideoController extends AbstractController
         include_once "view/video.php";
     }
 
+    /**
+     * @return void
+     */
     public function getAll() {
         $orderBy = null;
         if (isset($_GET["orderby"])) {
@@ -326,6 +342,9 @@ class VideoController extends AbstractController
         include_once "view/main.php";
     }
 
+    /**
+     * @return void
+     */
     public function getTrending()
     {
         $videoDao = new VideoDAO();
@@ -334,6 +353,9 @@ class VideoController extends AbstractController
         include_once "view/main.php";
     }
 
+    /**
+     * @return void
+     */
     public function getHistory()
     {
         $userId = $_SESSION["logged_user"]["id"];
@@ -359,6 +381,9 @@ class VideoController extends AbstractController
         $orderBy = true;
     }
 
+    /**
+     * @return void
+     */
     public function getWatchLater()
     {
         $userId = $_SESSION["logged_user"]["id"];
@@ -369,6 +394,9 @@ class VideoController extends AbstractController
         $action = "getWatchLater";
     }
 
+    /**
+     * @return void
+     */
     public function getLikedVideos()
     {
         $userId = $_SESSION["logged_user"]["id"];

@@ -4,7 +4,9 @@ namespace model;
 
 class VideoDAO extends AbstractDAO
 {
-
+    /**
+     * @return void
+     */
     protected function setTable()
     {
         $this->table = 'videos';
@@ -164,8 +166,9 @@ class VideoDAO extends AbstractDAO
                 JOIN users AS u ON v.owner_id = u.id
                 LEFT JOIN users_react_videos AS urv ON urv.video_id = v.id
             WHERE
-                urv.user_id = :user_id AND urv.status = 1
-                GROUP BY v.id;
+                urv.user_id = :user_id
+                AND urv.status = 1
+            GROUP BY v.id;
         ";
 
         return $this->fetchAllAssoc($query, $params);
@@ -189,20 +192,20 @@ class VideoDAO extends AbstractDAO
             FROM
                 users_react_videos 
             WHERE
-                video_id = :video_id AND status = :status;
+                video_id = :video_id
+                AND status = :status;
         ";
         $row = $this->fetchAssoc($query, $params);
         if ($row) {
             return $row["count"];
         }
-
         return false;
     }
 
-
-
     /**
      * @param int $video_id
+     *
+     * @return void
      */
     public function updateViews($video_id)
     {
@@ -239,7 +242,8 @@ class VideoDAO extends AbstractDAO
                 JOIN users AS u ON v.owner_id = u.id
                 LEFT JOIN users_react_videos AS urv ON urv.video_id = v.id
                 GROUP BY v.id
-                ORDER BY views DESC LIMIT 5;
+                ORDER BY views DESC
+                LIMIT 5;
         ";
 
         return $this->fetchAllAssoc($query);
@@ -274,5 +278,36 @@ class VideoDAO extends AbstractDAO
                 ORDER BY atp.date_added;";
 
         return $this->fetchAllAssoc($query, $params);
+    }
+
+    /**
+     * @param string $searchQuery
+     *
+     * @return array
+     */
+    public function getSearchedVideos($searchQuery)
+    {
+        $params = [
+            'searchQuery' => $searchQuery
+        ];
+        $query = "
+            SELECT
+                v.id,
+                v.title,
+                v.date_uploaded,
+                u.username,
+                v.thumbnail_url,
+                v.views
+            FROM
+                videos AS v 
+                JOIN users AS u ON v.owner_id = u.id 
+            WHERE
+                v.title LIKE :searchQuery;
+        ";
+
+        return $this->fetchAllAssoc(
+            $query,
+            $params
+        );
     }
 }

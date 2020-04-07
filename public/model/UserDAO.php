@@ -6,7 +6,9 @@ use PDOException;
 
 class UserDAO extends AbstractDAO
 {
-
+    /**
+     * @return void
+     */
     protected function setTable()
     {
         $this->table = 'users';
@@ -155,6 +157,8 @@ class UserDAO extends AbstractDAO
      * @param int $video_id
      * @param int $user_id
      * @param string $date
+     *
+     * @return void
      */
     public function addToHistory($video_id, $user_id, $date)
     {
@@ -211,5 +215,33 @@ class UserDAO extends AbstractDAO
             $this->rollBack();
             throw new PDOException();
         }
+    }
+
+    /**
+     * @param string $searchQuery
+     *
+     * @return array
+     */
+    public function getSearchedUsers($searchQuery)
+    {
+        $params = [
+            'searchQuery' => $searchQuery
+        ];
+        $query = "
+            SELECT
+                u.id,
+                u.username,
+                u.name,
+                u.avatar_url,
+                u.registration_date
+            FROM
+                users AS u
+            WHERE
+                u.username LIKE :searchQuery;
+        ";
+        return $this->fetchAllAssoc(
+            $query,
+            $params
+        );
     }
 }
