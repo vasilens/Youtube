@@ -81,6 +81,8 @@ abstract class AbstractDAO
     /**
      * @param string $query
      * @param array  $params
+     *
+     * @return void
      */
     public function prepareAndExecute(string $query, array $params = [])
     {
@@ -224,15 +226,16 @@ abstract class AbstractDAO
 
     /**
      * @param array $params
+     * @param bool  $fetch
      *
      * @return array
      */
-    public function findBy(array $params): array
+    public function findBy(array $params, bool $fetch = false)
     {
         foreach ($params as $key => $value) {
-            $params[$key] = "$key = :$key";
+            $values[$key] = "$key = :$key";
         }
-        $columns = implode(' AND ', array_keys($params));
+        $columns = implode(' AND ', array_values($values));
         $query = "
             SELECT
                 *
@@ -241,7 +244,9 @@ abstract class AbstractDAO
             WHERE
                 {$columns};
         ";
-
-        return $this->fetchAllAssoc($query, $params);
+        if ($fetch) {
+            return $this->fetchAssoc($query, $params);
+        }
+            return $this->fetchAllAssoc($query, $params);
     }
 }

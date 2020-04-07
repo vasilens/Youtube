@@ -3,11 +3,15 @@
 namespace controller;
 
 use exceptions\InvalidArgumentException;
-use model\SearchDAO;
+use model\PlaylistDAO;
+use model\UserDAO;
+use model\VideoDAO;
 
 class SearchController extends AbstractController
 {
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function search()
@@ -23,10 +27,12 @@ class SearchController extends AbstractController
                 return;
             }
                 $searchQuery = htmlentities($postParams['search_query']);
-                $searchDao = new SearchDAO();
-                $videos = $searchDao->getSearchedVideos($searchQuery);
-                $playlists = $searchDao->getSearchedPlaylists($searchQuery);
-                $users = $searchDao->getSearchedUsers($searchQuery);
+                $userDao = new UserDAO();
+                $videoDao = new VideoDAO();
+                $playlistDao = new PlaylistDAO();
+                $videos = $videoDao->getSearchedVideos($searchQuery);
+                $playlists = $playlistDao->getSearchedPlaylists($searchQuery);
+                $users = $userDao->getSearchedUsers($searchQuery);
 
                 include_once "view/main.php";
         } else {
