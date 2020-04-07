@@ -96,7 +96,7 @@ abstract class AbstractDAO
      *
      * @return array
      */
-    public function fetchAssoc(string $query, array $params = []): array
+    public function fetchAssoc(string $query, array $params = [])
     {
         $this->prepareAndExecute($query, $params);
 
@@ -247,6 +247,6 @@ abstract class AbstractDAO
         if ($fetch) {
             return $this->fetchAssoc($query, $params);
         }
-            return $this->fetchAllAssoc($query, $params);
+        return $this->fetchAllAssoc($query, $params);
     }
 }

@@ -76,15 +76,15 @@ class UsersReactCommentsDAO extends AbstractDAO
     }
 
     /**
-     * @param int $comment_id
+     * @param int $commentId
      * @param int $status
      *
      * @return int
      */
-    public function getCommentReactions($comment_id, $status)
+    public function getCommentReactions(int $commentId, int $status): int
     {
         $params = [
-            'comment_id' => $comment_id,
+            'comment_id' => $commentId,
             'status'     => $status
         ];
         $query = "

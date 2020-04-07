@@ -93,7 +93,7 @@ class VideoController extends AbstractController
     }
 
     /**
-     * @param null $id
+     * @param int | null $id
      *
      * @return void
      *

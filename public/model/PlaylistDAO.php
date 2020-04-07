@@ -17,7 +17,7 @@ class PlaylistDAO extends AbstractDAO
      *
      * @return array
      */
-    public function getVideosFromPlaylist($playlistId)
+    public function getVideosFromPlaylist(int $playlistId): array
     {
         $params = [
             'playlistId' => $playlistId
@@ -52,7 +52,7 @@ class PlaylistDAO extends AbstractDAO
      *
      * @return array
      */
-    public function getSearchedPlaylists($searchQuery)
+    public function getSearchedPlaylists(string $searchQuery): array
     {
         $params = [
             'searchQuery' => $searchQuery

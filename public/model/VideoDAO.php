@@ -14,11 +14,11 @@ class VideoDAO extends AbstractDAO
 
     /**
      * @param int           $ownerId
-     * @param string | null $orderby
+     * @param string|null $orderBy
      *
      * @return array
      */
-    public function getByOwnerId($ownerId, $orderby = null)
+    public function getByOwnerId($ownerId, $orderBy = null): array
     {
         $params = [
             'owner_id' => $ownerId,
@@ -39,7 +39,7 @@ class VideoDAO extends AbstractDAO
             WHERE
                 owner_id = :owner_id
                 GROUP BY v.id
-                $orderby;
+                $orderBy;
         ";
 
         return $this->fetchAllAssoc($query, $params);
@@ -50,7 +50,7 @@ class VideoDAO extends AbstractDAO
      *
      * @return array
      */
-    public function getById($id)
+    public function getById(int $id): array
     {
         $params = [
             'id' => $id
@@ -81,11 +81,11 @@ class VideoDAO extends AbstractDAO
     }
 
     /**
-     * @param string | null $orderby
+     * @param string|null $orderBy
      *
      * @return array
      */
-    public function getAll($orderby = null)
+    public function getAll($orderBy = null): array
     {
         $query = "
             SELECT
@@ -101,22 +101,22 @@ class VideoDAO extends AbstractDAO
                 JOIN users AS u ON v.owner_id = u.id
                 LEFT JOIN users_react_videos AS urv ON urv.video_id = v.id
                 GROUP BY v.id
-                $orderby;
+                $orderBy;
         ";
 
         return $this->fetchAllAssoc($query);
     }
 
     /**
-     * @param int           $user_id
-     * @param string | null $orderby
+     * @param int           $userId
+     * @param string | null $orderBy
      *
      * @return array
      */
-    public function getHistory ($user_id, $orderby=null)
+    public function getHistory (int $userId, $orderBy=null): array
     {
         $params = [
-            'user_id' => $user_id
+            'user_id' => $userId
         ];
         $query = "
             SELECT
@@ -142,15 +142,15 @@ class VideoDAO extends AbstractDAO
     }
 
     /**
-     * @param int           $user_id
-     * @param string | null $orderby
+     * @param int           $userId
+     * @param string|null $orderBy
      *
      * @return array
      */
-    public function getLikedVideos($user_id, $orderby=null)
+    public function getLikedVideos(int $userId, $orderBy=null): array
     {
         $params = [
-            'user_id' => $user_id
+            'user_id' => $userId
         ];
         $query = "
             SELECT
@@ -175,15 +175,15 @@ class VideoDAO extends AbstractDAO
     }
 
     /**
-     * @param int $video_id
+     * @param int $videoId
      * @param int $status
      *
-     * @return int | bool
+     * @return int|bool
      */
-    public function getReactions($video_id, $status)
+    public function getReactions(int $videoId, int $status)
     {
         $params = [
-            'video_id' => $video_id,
+            'video_id' => $videoId,
             'status'   => $status
         ];
         $query = "
@@ -203,14 +203,14 @@ class VideoDAO extends AbstractDAO
     }
 
     /**
-     * @param int $video_id
+     * @param int $videoId
      *
      * @return void
      */
-    public function updateViews($video_id)
+    public function updateViews(int $videoId)
     {
         $params = [
-            'id' => $video_id
+            'id' => $videoId
         ];
         $query = "
             UPDATE
@@ -226,7 +226,7 @@ class VideoDAO extends AbstractDAO
     /**
      * @return array
      */
-    public function getMostWatched()
+    public function getMostWatched(): array
     {
         $query = "
             SELECT
@@ -250,14 +250,14 @@ class VideoDAO extends AbstractDAO
     }
 
     /**
-     * @param int $user_id
+     * @param int $userId
      *
      * @return array
      */
-    public function getWatchLater($user_id)
+    public function getWatchLater(int $userId): array
     {
         $params = [
-            'id' => $user_id
+            'id' => $userId
         ];
         $query = "
             SELECT
@@ -285,7 +285,7 @@ class VideoDAO extends AbstractDAO
      *
      * @return array
      */
-    public function getSearchedVideos($searchQuery)
+    public function getSearchedVideos(string $searchQuery): array
     {
         $params = [
             'searchQuery' => $searchQuery

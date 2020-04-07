@@ -19,7 +19,7 @@ class UserDAO extends AbstractDAO
      *
      * @return bool
      */
-    public function registerUser(User $user)
+    public function registerUser(User $user): bool
     {
         try {
             $this->beginTransaction();
@@ -86,14 +86,14 @@ class UserDAO extends AbstractDAO
     }
 
     /**
-     * @param int $logged_user
+     * @param int $loggedUser
      *
-     * @return array | bool
+     * @return array|bool
      */
-    public function getSubscriptions($logged_user)
+    public function getSubscriptions(int $loggedUser)
     {
         $params = [
-            'follower_id' => $logged_user
+            'follower_id' => $loggedUser
         ];
         $query = "
             SELECT
@@ -119,14 +119,14 @@ class UserDAO extends AbstractDAO
     }
 
     /**
-     * @param int $followed_id
+     * @param int $followedId
      *
      * @return array
      */
-    public function getFollowedUser($followed_id)
+    public function getFollowedUser(int $followedId): array
     {
         $params = [
-            'followed_id' => $followed_id
+            'followed_id' => $followedId
         ];
         $query = "
             SELECT
@@ -154,19 +154,19 @@ class UserDAO extends AbstractDAO
     }
 
     /**
-     * @param int $video_id
-     * @param int $user_id
+     * @param int $videoId
+     * @param int $userId
      * @param string $date
      *
      * @return void
      */
-    public function addToHistory($video_id, $user_id, $date)
+    public function addToHistory(int $videoId, int $userId, string $date)
     {
         try {
             $this->beginTransaction();
             $params = [
-                'video_id' => $video_id,
-                'user_id'  => $user_id,
+                'video_id' => $videoId,
+                'user_id'  => $userId,
             ];
             $query = "
                 SELECT
@@ -176,8 +176,8 @@ class UserDAO extends AbstractDAO
                 WHERE
                     video_id = :video_id AND user_id = :user_id;";
             $params2 = [
-                'video_id' => $video_id,
-                'user_id'  => $user_id,
+                'video_id' => $videoId,
+                'user_id'  => $userId,
                 'date'     => $date
             ];
             $query2 = "
@@ -193,8 +193,8 @@ class UserDAO extends AbstractDAO
                     :date
                 )";
             $params3 = [
-                'video_id' => $video_id,
-                'user_id'  => $user_id,
+                'video_id' => $videoId,
+                'user_id'  => $userId,
                 'date'     => $date
             ];
             $query3 = "
@@ -222,7 +222,7 @@ class UserDAO extends AbstractDAO
      *
      * @return array
      */
-    public function getSearchedUsers($searchQuery)
+    public function getSearchedUsers(string $searchQuery): array
     {
         $params = [
             'searchQuery' => $searchQuery

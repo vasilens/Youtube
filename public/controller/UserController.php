@@ -280,13 +280,13 @@ class UserController extends AbstractController
 
     /**
      * @param $file
-     * @param $username
+     * @param string $username
      *
      * @return bool|string
      *
      * @throws InvalidFileException
      */
-    public function uploadImage($file, $username)
+    public function uploadImage($file, string $username)
     {
         if (is_uploaded_file($_FILES[$file]["tmp_name"])) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -328,7 +328,7 @@ class UserController extends AbstractController
      *
      * @return string
      */
-    public function registerValidator($username, $email, $password = null, $cpassword = null)
+    public function registerValidator(string $username, string $email, $password = null, $cpassword = null): string
     {
         $msg = '';
         if (strlen($username) < 8) {
@@ -474,7 +474,7 @@ class UserController extends AbstractController
      *
      * @throws InvalidArgumentException
      */
-    public function isReacting($userId, $videoId)
+    public function isReacting(int $userId, int $videoId): int
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams['video_id'])) {
