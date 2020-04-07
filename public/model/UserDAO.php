@@ -1,267 +1,247 @@
 <?php
+
 namespace model;
-use PDO;
+
 use PDOException;
-class UserDAO extends BaseDao {
-    private static $instance;
 
-    private function __construct()
+class UserDAO extends AbstractDAO
+{
+    /**
+     * @return void
+     */
+    protected function setTable()
     {
+        $this->table = 'users';
     }
 
-    public static function getInstance(){
-        if (self::$instance == null){
-            self::$instance = new UserDAO();
-        }
-        return self::$instance;
-    }
-
-    public function getAll() {
-        $pdo = $this->getPDO();
-        $sql = "SELECT id, username, email, name, registration_date FROM users";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $rows;
-    }
-
-    public function checkUser($email)
+    /**
+     * @param User $user
+     *
+     * @return bool
+     */
+    public function registerUser(User $user): bool
     {
-        $pdo = $this->getPDO();
-        $sql = "SELECT id, username, email, password, name, avatar_url FROM users WHERE email = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($email));
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (empty($row)) {
-            return false;
-        }
-        else {
-            return $row;
-        }
-    }
-
-    public function checkUsername($username)
-    {
-        $pdo = $this->getPDO();
-        $sql = "SELECT id, username, email FROM users WHERE username = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($username));
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (empty($row)) {
-            return false;
-        }
-        else {
-            return $row;
-        }
-    }
-
-    public function registerUser(User $user)
-    {
-        $username = $user->getUsername();
-        $email = $user->getEmail();
-        $password = $user->getPassword();
-        $full_name = $user->getFullName();
-        $date = $user->getRegistrationDate();
-        $avatar_url = $user->getAvatarUrl();
         try {
-            $pdo = $this->getPDO();
-            $pdo->beginTransaction();
-            $sql = "INSERT INTO users (username,  email, password, name, registration_date, avatar_url)
-                VALUES (?, ?, ?, ?, ?, ?)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(array($username, $email, $password, $full_name, $date, $avatar_url));
-            $user->setId($pdo->lastInsertId());
+            $this->beginTransaction();
+            $params = [
+                'username'          => $user->getUsername(),
+                'email'             => $user->getEmail(),
+                'password'          => $user->getPassword(),
+                'name'              => $user->getFullName(),
+                'registration_date' => $user->getRegistrationDate(),
+                'avatar_url'        => $user->getAvatarUrl()
+            ];
+            $query = "
+                INSERT INTO
+                    users (
+                        username,
+                        email,
+                        password,
+                        name,
+                        registration_date,
+                        avatar_url
+                    )
+                VALUES (
+                    :username,
+                    :email,
+                    :password,
+                    :name,
+                    :registration_date,
+                    :avatar_url
+                    )";
+            $this->prepareAndExecute(
+                $query,
+                $params
+            );
+            $user->setId($this->lastInsertId());
+            $params2 = [
+                'playlist_title' => "Watch Later",
+                'owner_id'       => $user->getId(),
+                'date_created'   => date("Y-m-d H:i:s")
+            ];
+            $query2 = "
+                INSERT INTO
+                    playlists (
+                        playlist_title,
+                        owner_id,
+                        date_created
+                    )
+                VALUES (
+                    :playlist_title,
+                    :owner_id,
+                    :date_created
+                    );";
+            $this->prepareAndExecute(
+                $query2,
+                $params2
+            );
+            $this->commit();
 
-            $playlist_title = "Watch Later";
-            $owner_id = $user->getId();
-            $date_created = date("Y-m-d H:i:s");
-            $sql = "INSERT INTO playlists (playlist_title, owner_id, date_created) VALUES (?, ?, ?);";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(array($playlist_title, $owner_id, $date_created));
-            $pdo->commit();
             return true;
         }
-        catch (PDOException $e){
-            $pdo->rollBack();
+        catch (PDOException $e) {
+            $this->rollBack();
             throw $e;
         }
     }
 
-    public function getById($id){
-        $pdo = $this->getPDO();
-        $sql = "SELECT username, name, registration_date, avatar_url FROM users WHERE id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($id));
-        $rows = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $rows;
-    }
-
-    public function editUser(User $user)
+    /**
+     * @param int $loggedUser
+     *
+     * @return array|bool
+     */
+    public function getSubscriptions(int $loggedUser)
     {
-        $username = $user->getUsername();
-        $email  = $user->getEmail();
-        $password   = $user->getPassword();
-        $full_name = $user->getFullName();
-        $avatar_url = $user->getAvatarUrl();
-        $id = $user->getId();
-        $pdo = $this->getPDO();
-        $sql = "UPDATE users SET username = ? , email = ?, password = ?, name = ?, avatar_url = ? WHERE id=?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($username, $email, $password, $full_name, $avatar_url, $id));
-    }
-
-    public function followUser($follower_id, $followed_id){
-        $pdo = $this->getPDO();
-        $sql = "INSERT INTO users_follow_users (follower_id, followed_id)
-                VALUES (?, ?);";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($follower_id, $followed_id));
-    }
-
-    public function unfollowUser($follower_id, $followed_id){
-        $pdo = $this->getPDO();
-        $sql = "DELETE FROM users_follow_users WHERE follower_id = ? AND followed_id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($follower_id, $followed_id));
-    }
-
-    public function isFollowing($follower_id, $followed_id){
-        $pdo = $this->getPDO();
-        $sql = "SELECT followed_id FROM users_follow_users WHERE follower_id = ? AND followed_id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($follower_id, $followed_id));
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row){
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public function isReacting($user_id, $video_id){
-        $pdo = $this->getPDO();
-        $sql = "SELECT status FROM users_react_videos WHERE user_id = ? AND video_id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($user_id, $video_id));
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row){
-            return $row["status"];
-        }
-        else {
-            return -1;
-        }
-    }
-
-    public function reactVideo($user_id, $video_id, $status){
-        $pdo = $this->getPDO();
-        $sql = "INSERT INTO users_react_videos (user_id, video_id, status)
-                VALUES (?, ?, ?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($user_id, $video_id, $status));
-    }
-
-    public function unreactVideo($user_id, $video_id){
-        $pdo = $this->getPDO();
-        $sql = "DELETE FROM users_react_videos WHERE user_id = ? AND video_id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($user_id, $video_id));
-    }
-
-    public function isReactingComment($user_id, $comment_id){
-        $pdo = $this->getPDO();
-        $sql = "SELECT status FROM users_react_comments WHERE user_id = ? AND comment_id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($user_id, $comment_id));
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row){
-            return $row["status"];
-        }
-        else {
-            return -1;
-        }
-    }
-
-    public function reactComment($user_id, $comment_id, $status){
-        $pdo = $this->getPDO();
-        $sql = "INSERT INTO users_react_comments (user_id, comment_id, status)
-                VALUES (?, ?, ?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($user_id, $comment_id, $status));
-    }
-
-    public function unreactComment($user_id, $comment_id){
-        $pdo = $this->getPDO();
-        $sql = "DELETE FROM users_react_comments WHERE user_id = ? AND comment_id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($user_id, $comment_id));
-    }
-
-    public function getCommentReactions($comment_id, $status){
-        $pdo = $this->getPDO();
-        $sql = "SELECT COUNT(*) AS count FROM users_react_comments 
-                WHERE comment_id = ? AND status = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($comment_id, $status));
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $params = [
+            'follower_id' => $loggedUser
+        ];
+        $query = "
+            SELECT
+                u.username,
+                u.avatar_url,
+                u.name,
+                ufu.followed_id
+            FROM
+                users_follow_users AS ufu
+                JOIN users AS u ON u.id = ufu.followed_id
+            WHERE
+                ufu.follower_id = :follower_id;";
+        $row = $this->fetchAllAssoc(
+            $query,
+            $params
+        );
         if ($row) {
-            return $row["count"];
-        }
-        else {
-            return 0;
-        }
-    }
 
-    public function getSubscriptions($logged_user){
-        $pdo = $this->getPDO();
-        $sql = "SELECT u.username, u.avatar_url, u.name, ufu.followed_id FROM users_follow_users AS ufu
-                JOIN users AS u ON u.id = ufu.followed_id WHERE ufu.follower_id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($logged_user));
-        $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if ($row){
             return $row;
         }
-        else {
-            return false;
-        }
-    }
-    public function getFollowedUser($followed_id){
-        $pdo = $this->getPDO();
-        $sql = "SELECT u.username, u.avatar_url, u.name,p.id, p.playlist_title, p.date_created, v.title,
-                v.date_uploaded,v.id AS video_id, v.thumbnail_url FROM users AS u
-                JOIN playlists AS p ON p.owner_id = u.id
-                JOIN videos AS v ON v.owner_id = u.id WHERE u.id = ?;";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(array($followed_id));
-        $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $row;
+
+        return false;
     }
 
-    public function addToHistory($video_id, $user_id, $date){
-        try{
-            $pdo = $this->getPDO();
-            $pdo->beginTransaction();
-            $sql1 = "SELECT * FROM users_watch_videos WHERE video_id = ? AND user_id = ?;";
-            $sql2 = "INSERT INTO users_watch_videos (video_id, user_id, date)
-                VALUES (?, ?, ?)";
-            $sql3 = "UPDATE users_watch_videos SET date = ?
-                    WHERE video_id = ? AND user_id = ?;";
-            $stmt1 = $pdo->prepare($sql1);
-            $stmt1->execute(array($video_id, $user_id));
-            if(!$stmt1->rowCount()){
-                $stmt2 = $pdo->prepare($sql2);
-                $stmt2->execute(array($video_id, $user_id, $date));
+    /**
+     * @param int $followedId
+     *
+     * @return array
+     */
+    public function getFollowedUser(int $followedId): array
+    {
+        $params = [
+            'followed_id' => $followedId
+        ];
+        $query = "
+            SELECT
+                u.username,
+                u.avatar_url,
+                u.name,
+                p.id,
+                p.playlist_title,
+                p.date_created,
+                v.title,
+                v.date_uploaded,
+                v.id AS video_id,
+                v.thumbnail_url
+            FROM
+                users AS u
+                JOIN playlists AS p ON p.owner_id = u.id
+                JOIN videos AS v ON v.owner_id = u.id
+            WHERE
+                u.id = :followed_id;";
+
+        return $this->fetchAllAssoc(
+            $query,
+            $params
+        );
+    }
+
+    /**
+     * @param int $videoId
+     * @param int $userId
+     * @param string $date
+     *
+     * @return void
+     */
+    public function addToHistory(int $videoId, int $userId, string $date)
+    {
+        try {
+            $this->beginTransaction();
+            $params = [
+                'video_id' => $videoId,
+                'user_id'  => $userId,
+            ];
+            $query = "
+                SELECT
+                    *
+                FROM
+                    users_watch_videos
+                WHERE
+                    video_id = :video_id AND user_id = :user_id;";
+            $params2 = [
+                'video_id' => $videoId,
+                'user_id'  => $userId,
+                'date'     => $date
+            ];
+            $query2 = "
+                INSERT INTO
+                    users_watch_videos (
+                        video_id,
+                        user_id,
+                        date
+                    )
+                VALUES (
+                    :video_id,
+                    :user_id,
+                    :date
+                )";
+            $params3 = [
+                'video_id' => $videoId,
+                'user_id'  => $userId,
+                'date'     => $date
+            ];
+            $query3 = "
+                UPDATE
+                    users_watch_videos
+                SET
+                    date = :date
+                WHERE
+                    video_id = :video_id AND user_id = :user_id;";
+            if (!$this->rowCount($query, $params)) {
+                $this->prepareAndExecute($query2, $params2);
             }
             else {
-                $stmt3 = $pdo->prepare($sql3);
-                $stmt3->execute(array($date, $video_id, $user_id));
+                $this->prepareAndExecute($query3, $params3);
             }
-            $pdo->commit();
-        } catch (PDOException $e){
-            $pdo->rollBack();
+            $this->commit();
+        } catch (PDOException $e) {
+            $this->rollBack();
             throw new PDOException();
         }
     }
 
+    /**
+     * @param string $searchQuery
+     *
+     * @return array
+     */
+    public function getSearchedUsers(string $searchQuery): array
+    {
+        $params = [
+            'searchQuery' => $searchQuery
+        ];
+        $query = "
+            SELECT
+                u.id,
+                u.username,
+                u.name,
+                u.avatar_url,
+                u.registration_date
+            FROM
+                users AS u
+            WHERE
+                u.username LIKE :searchQuery;
+        ";
+        return $this->fetchAllAssoc(
+            $query,
+            $params
+        );
+    }
 }

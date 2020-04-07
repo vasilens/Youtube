@@ -7,11 +7,15 @@ use exceptions\InvalidArgumentException;
 use exceptions\InvalidFileException;
 use model\User;
 use model\UserDAO;
+use model\UsersFollowUsersDAO;
+use model\UsersReactVideosDAO;
 use model\VideoDAO;
 
 class UserController extends AbstractController
 {
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function login()
@@ -30,8 +34,11 @@ class UserController extends AbstractController
 
                 return;
             }
-            $userDao = UserDAO::getInstance();
-            $user = $userDao->checkUser($email);
+            $userDao = new UserDAO();
+            $params = [
+                'email' => $email
+            ];
+            $user = $userDao->findBy($params, true);
             if (!$user) {
                 $msg = "Invalid password or email! Try again.";
 
@@ -61,6 +68,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidFileException
      */
     public function register()
@@ -103,8 +112,11 @@ class UserController extends AbstractController
 
                 return;
             }
-            $userDao = UserDAO::getInstance();
-            $user = $userDao->checkUser($email);
+            $userDao = new UserDAO();
+            $params = [
+                'email' => $email
+            ];
+            $user = $userDao->findBy($params, true);
             if ($user) {
                 $msg = "User with that email already exists!";
 
@@ -112,7 +124,10 @@ class UserController extends AbstractController
 
                 return;
             }
-            $user = $userDao->checkUsername($username);
+            $params = [
+                'username' => $username
+            ];
+            $user = $userDao->findBy($params, true);
             if ($user) {
                 $msg = "User with that username already exists!";
 
@@ -124,7 +139,6 @@ class UserController extends AbstractController
             $registrationDate = date("Y-m-d H:i:s");
             $avatarUrl = $this->uploadImage("avatar", $_POST['username']);
             $user = new User($username, $email, $password, $fullName, $registrationDate, $avatarUrl);
-            $userDao = UserDAO::getInstance();
             $userDao->registerUser($user);
             $arrayUser = [];
             $arrayUser['id'] = $user->getId();
@@ -141,6 +155,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
      * @throws InvalidFileException
@@ -174,12 +190,18 @@ class UserController extends AbstractController
 
                 return;
             }
-            $userDao = UserDAO::getInstance();
-            $user = $userDao->checkUser($_SESSION["logged_user"]["email"]);
+            $userDao = new UserDAO();
+            $params = [
+                'email' => $_SESSION["logged_user"]["email"]
+            ];
+            $user = $userDao->findBy($params, true);
             if (empty($user)) {
                 throw new AuthorizationException("Unauthorized user.");
             }
-            $user = $userDao->checkUsername($postParams["username"]);
+            $params = [
+                'username' => $postParams["username"]
+            ];
+            $user = $userDao->findBy($params, true);
             if ($user && $user["id"] != $_SESSION["logged_user"]["id"]) {
 
                 include_once "view/editProfile.php";
@@ -188,7 +210,10 @@ class UserController extends AbstractController
 
                 return;
             }
-            $user = $userDao->checkUser($postParams["email"]);
+            $params = [
+                'email' => $postParams['email']
+            ];
+            $user = $userDao->findBy($params);
             if ($user && $user["id"] != $_SESSION["logged_user"]["id"]) {
 
                 include_once "view/editProfile.php";
@@ -198,9 +223,9 @@ class UserController extends AbstractController
                 return;
             }
             $password = $user['password'];
-            if(password_verify($postParams['password'], $password)){
+            if (password_verify($postParams['password'], $password)) {
                 $newAvatar = $this->uploadImage("avatar", $postParams['username']);
-                if (!$newAvatar){
+                if (!$newAvatar) {
                     $newAvatar = $_SESSION["logged_user"]["avatar_url"];
                 }
                 $username = $postParams["username"];
@@ -220,7 +245,17 @@ class UserController extends AbstractController
                 }
                 $user = new User($username, $email, $password, $fullName, null, $newAvatar);
                 $user->setId($_SESSION['logged_user']['id']);
-                $userDao->editUser($user);
+                $params = [
+                    'username'   => $user->getUsername(),
+                    'email'      => $user->getEmail(),
+                    'password'   => $user->getPassword(),
+                    'name'       => $user->getFullName(),
+                    'avatar_url' => $user->getAvatarUrl()
+                ];
+                $conditions = [
+                    'id' => $user->getId()
+                ];
+                $userDao->update($params, $conditions);
                 $arrayUser = [];
                 $arrayUser['id'] = $user->getId();
                 $arrayUser['username'] = $user->getUsername();
@@ -244,14 +279,14 @@ class UserController extends AbstractController
     }
 
     /**
-     * @param $file
-     * @param $username
+     * @param string $file
+     * @param string $username
      *
      * @return bool|string
      *
      * @throws InvalidFileException
      */
-    public function uploadImage($file, $username)
+    public function uploadImage(string $file, string $username)
     {
         if (is_uploaded_file($_FILES[$file]["tmp_name"])) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -274,6 +309,9 @@ class UserController extends AbstractController
         return false;
     }
 
+    /**
+     * @return void
+     */
     public function logout()
     {
         unset($_SESSION);
@@ -283,14 +321,14 @@ class UserController extends AbstractController
     }
 
     /**
-     * @param $username
-     * @param $email
-     * @param null $password
-     * @param null $cpassword
+     * @param string        $username
+     * @param string        $email
+     * @param string|null $password
+     * @param string|null $cpassword
      *
      * @return string
      */
-    public function registerValidator($username, $email, $password = null, $cpassword = null)
+    public function registerValidator(string $username, string $email, $password = null, $cpassword = null): string
     {
         $msg = '';
         if (strlen($username) < 8) {
@@ -313,6 +351,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function getById()
@@ -324,14 +364,19 @@ class UserController extends AbstractController
         if (empty($id)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $userDao = UserDAO::getInstance();
-        $user = $userDao->getById($id);
+        $userDao = new UserDAO();
+        $usersFollowUsersDao = new UsersFollowUsersDAO();
+        $user = $userDao->find($id);
         if (empty($user)) {
             throw new InvalidArgumentException("Invalid user.");
         }
         $user["id"] = $id;
-        $user["isFollowed"] = $userDao->isFollowing($_SESSION["logged_user"]["id"], $id);
-        $videoDao = VideoDAO::getInstance();
+        $params = [
+            'follower_id' => $_SESSION["logged_user"]["id"],
+            'followed_id' => $id
+        ];
+        $user["isFollowed"] = $usersFollowUsersDao->findBy($params, true);
+        $videoDao = new VideoDAO();
         $videos = $videoDao->getByOwnerId($id);
 
         include_once "view/profile.php";
@@ -352,12 +397,22 @@ class UserController extends AbstractController
         if (empty($followerId) || empty($followedId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $userDao = UserDAO::getInstance();
+        $usersFollowUsersDao = new UsersFollowUsersDAO();
+        $params = [
+            'follower_id' => $followerId,
+            'followed_id' => $followedId
+        ];
+        $row = $usersFollowUsersDao->findBy($params);
+        if ($row) {
+            return true;
+        }
 
-        return $userDao->isFollowing($followerId, $followedId);
+        return false;
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function follow()
@@ -370,15 +425,22 @@ class UserController extends AbstractController
         if (empty($followerId) || empty($followedId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $userDao = UserDAO::getInstance();
-        $user = $userDao->getById($followedId);
+        $userDao = new UserDAO();
+        $usersFollowUsersDao = new UsersFollowUsersDAO();
+        $user = $userDao->find($followedId);
         if (empty($user)) {
             throw new InvalidArgumentException("Invalid user.");
         }
-        $userDao->followUser($followerId, $followedId);
+        $params = [
+            'follower_id' => $followerId,
+            'followed_id' => $followedId
+        ];
+        $usersFollowUsersDao->insert($params);
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function unfollow()
@@ -391,23 +453,28 @@ class UserController extends AbstractController
         if (empty($followerId) || empty($followedId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $userDao = UserDAO::getInstance();
-        $user = $userDao->getById($followedId);
+        $userDao = new UserDAO();
+        $usersFollowUsersDao = new UsersFollowUsersDAO();
+        $user = $userDao->find($followedId);
         if (empty($user)) {
             throw new InvalidArgumentException("Invalid user.");
         }
-        $userDao->unfollowUser($followerId, $followedId);
+        $params = [
+            'follower_id' => $followerId,
+            'followed_id' => $followedId
+        ];
+        $usersFollowUsersDao->delete($params);
     }
 
     /**
-     * @param $userId
-     * @param $videoId
+     * @param int $userId
+     * @param int $videoId
      *
      * @return int
      *
      * @throws InvalidArgumentException
      */
-    public function isReacting($userId, $videoId)
+    public function isReacting(int $userId, int $videoId): int
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams['video_id'])) {
@@ -417,12 +484,21 @@ class UserController extends AbstractController
         if (empty($userId) || empty($videoId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $userDao = UserDAO::getInstance();
-
-        return $userDao->isReacting($userId, $videoId);
+        $usersReactVideosDao = new UsersReactVideosDAO();
+        $params = [
+            'user_id'  => $userId,
+            'video_id' => $videoId
+        ];
+        $row = $usersReactVideosDao->findBy($params);
+        if ($row) {
+            return $row[0]["status"];
+        }
+        return -1;
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function reactVideo()
@@ -442,20 +518,38 @@ class UserController extends AbstractController
         if ($status != 1 && $status != 0) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videoDao = VideoDAO::getInstance();
+        $videoDao = new VideoDAO();
         $video = $videoDao->getById($videoId);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
         }
         $isReacting = $this->isReacting($userId, $videoId);
-        $userDao = UserDAO::getInstance();
+        $usersReactVideosDao = new UsersReactVideosDAO();
         if ($isReacting == -1) {//if there has been no reaction
-            $userDao->reactVideo($userId, $videoId, $status);
+            $params = [
+                'user_id'  => $userId,
+                'video_id' => $videoId,
+                'status'   => $status
+            ];
+            $usersReactVideosDao->insert($params);
         } elseif ($isReacting == $status) { //if liking liked or unliking unliked video
-            $userDao->unreactVideo($userId, $videoId);
+            $params = [
+                'user_id'  => $userId,
+                'video_id' => $videoId
+            ];
+            $usersReactVideosDao->delete($params);
         } elseif ($isReacting != $status) { //if liking disliked or disliking liked video
-            $userDao->unreactVideo($userId, $videoId);
-            $userDao->reactVideo($userId, $videoId, 1 - $isReacting);
+            $params = [
+                'user_id'  => $userId,
+                'video_id' => $videoId
+            ];
+            $usersReactVideosDao->delete($params);
+            $params = [
+                'user_id'  => $userId,
+                'video_id' => $videoId,
+                'status'   => 1 - $isReacting
+            ];
+            $usersReactVideosDao->insert($params);
         }
         $arr = [];
         $arr["stat"] = $this->isReacting($userId, $videoId);
@@ -466,15 +560,18 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function subscriptions()
     {
         $userId = $_SESSION["logged_user"]["id"];
         if (isset($userId) && !empty($userId)) {
-            $userDao = UserDAO::getInstance();
-            $userexists = $userDao->getById($userId);
-            if (empty($userexists)) {
+            $userDao = new UserDAO();
+
+            $userExists = $userDao->find($userId);
+            if (empty($userExists)) {
                 throw new InvalidArgumentException("Invalid user.");
             }
             $subscriptions = $userDao->getSubscriptions($userId);
@@ -484,6 +581,8 @@ class UserController extends AbstractController
     }
 
     /**
+     * @return void
+     *
      * @throws InvalidArgumentException
      */
     public function clickedUser()
@@ -492,7 +591,7 @@ class UserController extends AbstractController
         if (isset($getParams['id'])) {
             $followedId = $getParams['id'];
         }
-        $userDao = UserDAO::getInstance();
+        $userDao = new UserDAO();
         $user = $userDao->getFollowedUser($followedId);
         if (empty($user)) {
             throw new InvalidArgumentException("Invalid user.");
