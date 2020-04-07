@@ -87,7 +87,7 @@ class CommentController extends AbstractController
     }
 
     /**
-     * @return int|mixed
+     * @return int
      *
      * @throws InvalidArgumentException
      */

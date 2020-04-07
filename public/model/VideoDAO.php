@@ -113,7 +113,7 @@ class VideoDAO extends AbstractDAO
      *
      * @return array
      */
-    public function getHistory (int $userId, $orderBy=null): array
+    public function getHistory (int $userId, $orderBy = null): array
     {
         $params = [
             'user_id' => $userId
@@ -147,7 +147,7 @@ class VideoDAO extends AbstractDAO
      *
      * @return array
      */
-    public function getLikedVideos(int $userId, $orderBy=null): array
+    public function getLikedVideos(int $userId, $orderBy = null): array
     {
         $params = [
             'user_id' => $userId

@@ -247,6 +247,7 @@ abstract class AbstractDAO
         if ($fetch) {
             return $this->fetchAssoc($query, $params);
         }
+
         return $this->fetchAllAssoc($query, $params);
     }
 }

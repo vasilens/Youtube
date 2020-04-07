@@ -279,14 +279,14 @@ class UserController extends AbstractController
     }
 
     /**
-     * @param $file
+     * @param string $file
      * @param string $username
      *
      * @return bool|string
      *
      * @throws InvalidFileException
      */
-    public function uploadImage($file, string $username)
+    public function uploadImage(string $file, string $username)
     {
         if (is_uploaded_file($_FILES[$file]["tmp_name"])) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -323,8 +323,8 @@ class UserController extends AbstractController
     /**
      * @param string        $username
      * @param string        $email
-     * @param string | null $password
-     * @param string | null $cpassword
+     * @param string|null $password
+     * @param string|null $cpassword
      *
      * @return string
      */

@@ -26,15 +26,15 @@ class SearchController extends AbstractController
 
                 return;
             }
-                $searchQuery = htmlentities($postParams['search_query']);
-                $userDao = new UserDAO();
-                $videoDao = new VideoDAO();
-                $playlistDao = new PlaylistDAO();
-                $videos = $videoDao->getSearchedVideos($searchQuery);
-                $playlists = $playlistDao->getSearchedPlaylists($searchQuery);
-                $users = $userDao->getSearchedUsers($searchQuery);
+            $searchQuery = htmlentities($postParams['search_query']);
+            $userDao = new UserDAO();
+            $videoDao = new VideoDAO();
+            $playlistDao = new PlaylistDAO();
+            $videos = $videoDao->getSearchedVideos($searchQuery);
+            $playlists = $playlistDao->getSearchedPlaylists($searchQuery);
+            $users = $userDao->getSearchedUsers($searchQuery);
 
-                include_once "view/main.php";
+            include_once "view/main.php";
         } else {
             throw new InvalidArgumentException("Invalid arguments.");
         }
