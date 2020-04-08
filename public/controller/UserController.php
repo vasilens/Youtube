@@ -2,6 +2,7 @@
 
 namespace controller;
 
+use components\router\http\Request;
 use exceptions\AuthorizationException;
 use exceptions\InvalidArgumentException;
 use exceptions\InvalidFileException;
@@ -10,9 +11,25 @@ use model\UserDAO;
 use model\UsersFollowUsersDAO;
 use model\UsersReactVideosDAO;
 use model\VideoDAO;
+use services\UserService;
 
 class UserController extends AbstractController
 {
+    /**
+     * @var UserService
+     */
+    private $userService;
+
+    /**
+     * UserController constructor.
+     * @param Request $request
+     */
+    public function __construct(Request $request)
+    {
+        parent::__construct($request);
+        $this->userService = new UserService();
+    }
+
     /**
      * @return void
      *
@@ -34,33 +51,7 @@ class UserController extends AbstractController
 
                 return;
             }
-            $userDao = new UserDAO();
-            $params = [
-                'email' => $email
-            ];
-            $user = $userDao->findBy($params, true);
-            if (!$user) {
-                $msg = "Invalid password or email! Try again.";
-
-                include_once "view/login.php";
-
-                return;
-            }
-            if (password_verify($password, $user['password'])) {
-                $user['full_name'] = $user['name'];
-                unset($user["password"]);
-                $_SESSION['logged_user'] = $user;
-                header("Location:/");
-
-                echo "Successful login! <br>";
-
-                return;
-            }
-            else {
-                $msg = "Invalid password or email! Try again.";
-
-                include_once "view/login.php";
-            }
+            $this->userService->login($postParams);
         }
         else {
             throw new InvalidArgumentException("Invalid arguments.");
@@ -100,57 +91,20 @@ class UserController extends AbstractController
 
                 return;
             }
-            $username = $postParams['username'];
-            $email = $postParams['email'];
-            $fullName = $postParams['full_name'];
-            $password = $postParams['password'];
-            $cpassword = $postParams['cpassword'];
-            $msg = $this->registerValidator($username, $email, $password, $cpassword);
+            $msg = $this->registerValidator(
+                $postParams['username'],
+                $postParams['email'],
+                $postParams['password'],
+                $postParams['cpassword']
+            );
             if ($msg != '') {
 
                 include_once "view/register.php";
 
                 return;
             }
-            $userDao = new UserDAO();
-            $params = [
-                'email' => $email
-            ];
-            $user = $userDao->findBy($params, true);
-            if ($user) {
-                $msg = "User with that email already exists!";
-
-                include_once "view/login.php";
-
-                return;
-            }
-            $params = [
-                'username' => $username
-            ];
-            $user = $userDao->findBy($params, true);
-            if ($user) {
-                $msg = "User with that username already exists!";
-
-                include_once "view/login.php";
-
-                return;
-            }
-            $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-            $registrationDate = date("Y-m-d H:i:s");
             $avatarUrl = $this->uploadImage("avatar", $_POST['username']);
-            $user = new User($username, $email, $password, $fullName, $registrationDate, $avatarUrl);
-            $userDao->registerUser($user);
-            $arrayUser = [];
-            $arrayUser['id'] = $user->getId();
-            $arrayUser['username'] = $user->getUsername();
-            $arrayUser['email'] = $user->getEmail();
-            $arrayUser['full_name'] = $user->getFullName();
-            $arrayUser["avatar_url"] = $user->getAvatarUrl();
-            $_SESSION['logged_user'] = $arrayUser;
-
-            include_once "view/main.php";
-
-            echo "Successful registration! You are now logged in.<br>";
+            $this->userService->register($avatarUrl, $postParams);
         }
     }
 

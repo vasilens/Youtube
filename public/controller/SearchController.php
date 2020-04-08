@@ -2,13 +2,30 @@
 
 namespace controller;
 
+use components\router\http\Request;
 use exceptions\InvalidArgumentException;
 use model\PlaylistDAO;
 use model\UserDAO;
 use model\VideoDAO;
+use services\SearchService;
 
 class SearchController extends AbstractController
 {
+    /**
+     * @var SearchService
+     */
+    private $searchService;
+
+    /**
+     * SearchController constructor.
+     * @param Request $request
+     */
+    public function __construct(Request $request)
+    {
+        parent::__construct($request);
+        $this->searchService = new SearchService();
+    }
+
     /**
      * @return void
      *
@@ -26,15 +43,7 @@ class SearchController extends AbstractController
 
                 return;
             }
-            $searchQuery = htmlentities($postParams['search_query']);
-            $userDao = new UserDAO();
-            $videoDao = new VideoDAO();
-            $playlistDao = new PlaylistDAO();
-            $videos = $videoDao->getSearchedVideos($searchQuery);
-            $playlists = $playlistDao->getSearchedPlaylists($searchQuery);
-            $users = $userDao->getSearchedUsers($searchQuery);
-
-            include_once "view/main.php";
+            $this->searchService->search($postParams);
         } else {
             throw new InvalidArgumentException("Invalid arguments.");
         }

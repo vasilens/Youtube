@@ -4,6 +4,7 @@ namespace controller;
 
 include_once "fileHandler.php";
 
+use components\router\http\Request;
 use exceptions\AuthorizationException;
 use exceptions\InvalidArgumentException;
 use model\CategoryDAO;
@@ -14,9 +15,26 @@ use model\UsersReactVideosDAO;
 use model\Video;
 use model\VideoDAO;
 use exceptions\InvalidFileException;
+use services\VideoService;
 
 class VideoController extends AbstractController
 {
+
+    /**
+     * @var VideoService
+     */
+    private $videoService;
+
+    /**
+     * VideoController constructor.
+     * @param Request $request
+     */
+    public function __construct(Request $request)
+    {
+        parent::__construct($request);
+        $this->videoService = new VideoService();
+    }
+
     /**
      * @return void
      *

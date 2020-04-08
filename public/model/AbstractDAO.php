@@ -175,7 +175,7 @@ abstract class AbstractDAO
             $cond[$key] = "$key = :$key";
         }
         $columnsAndValues = implode(', ', array_values($parameters));
-        $condition = implode(', ', array_values($cond));
+        $condition = implode(' AND ', array_values($cond));
         $query = "
             UPDATE
                 {$this->table} 
