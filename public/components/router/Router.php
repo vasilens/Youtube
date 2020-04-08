@@ -3,7 +3,8 @@
 namespace router;
 
 use components\router\http\Request;
-use exceptions\InvalidArgumentException;
+use exceptions\AuthorizationException;
+use components\Authenticator;
 
 class Router
 {
@@ -18,18 +19,31 @@ class Router
      */
     private $request;
 
-    public function __construct(Request $request)
+    /**
+     * @var Authenticator
+     */
+    private $authenticate;
+
+    /**
+     * @param Request       $request
+     * @param Authenticator $authenticate
+     */
+    public function __construct(Request $request, Authenticator $authenticate)
     {
         $this->request = $request;
+        $this->authenticate = $authenticate;
     }
 
     /**
      * @param string $route
      * @param string $classAndMethod
+     * @param bool   $authenticate
      *
      * @return mixed
+     *
+     * @throws AuthorizationException
      */
-    public function route($route, $classAndMethod)
+    public function route($route, $classAndMethod, $authenticate = false)
     {
         $requestUri = $this->request->getRequestUri();
         $dynamicRoute = preg_match(self::REGEX, $requestUri);
@@ -48,6 +62,9 @@ class Router
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
                     $controller = new $className($this->request);
+                    if ($authenticate) {
+                        $this->authenticate->authenticate();
+                    }
                     $controller->$method();
                     die;
                 }
@@ -58,6 +75,9 @@ class Router
                     $className = self::CONTROLLER_DIR . ucfirst($classAndMethodArray[0]);
                     $method = $classAndMethodArray[1];
                     $controller = new $className($this->request);
+                    if ($authenticate) {
+                        $this->authenticate->authenticate();
+                    }
                     $arrayUri[1] == self::VIEW_ROUTER ?
                         $controller->$method($arrayUri[2]) :
                         $controller->$method();

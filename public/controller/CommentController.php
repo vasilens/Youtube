@@ -2,14 +2,38 @@
 
 namespace controller;
 
-use exceptions\InvalidArgumentException;
+use components\router\http\Request;
 use exceptions\AuthorizationException;
-use model\Comment;
-use model\UserDAO;
+use exceptions\InvalidArgumentException;
+use model\UsersReactCommentsDAO;
 use model\VideoDAO;
+use services\CommentService;
 
 class CommentController extends AbstractController
 {
+
+    /**
+     * @var CommentService
+     */
+    private $commentService;
+
+    /**
+     * CommentController constructor.
+     * @param Request $request
+     */
+    public function __construct(Request $request)
+    {
+        parent::__construct($request);
+        $this->commentService = new CommentService();
+
+    }
+
+    /**
+     * @return void
+     *
+     * @throws AuthorizationException
+     * @throws InvalidArgumentException
+     */
     public function add()
     {
         $postParams = $this->request->getPostParams();
@@ -25,89 +49,76 @@ class CommentController extends AbstractController
         if (empty($postParams["content"])) {
             throw new InvalidArgumentException("Comment is empty.");
         }
-        $dao = VideoDAO::getInstance();
-        $video = $dao->getById($postParams["video_id"]);
+        $videoDao = new VideoDAO();
+        $video = $videoDao->getById($postParams["video_id"]);
         if (empty($video)) {
             throw new InvalidArgumentException("Invalid video.");
         }
-        $comment = new Comment();
-        $comment->setContent($postParams["content"]);
-        $comment->setVideoId($postParams["video_id"]);
-        $comment->setOwnerId($postParams["owner_id"]);
-        $comment->setDate(date("Y-m-d H:i:s"));
-        $comment_id = $dao->addComment($comment);
-        $comment = $dao->getCommentById($comment_id);
-        echo json_encode($comment);
+        $this->commentService->add($postParams);
     }
 
+    /**
+     * @return void
+     *
+     * @throws InvalidArgumentException
+     */
     public function delete()
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams["id"])) {
-            $comment_id = $getParams["id"];
-            $owner_id = $_SESSION["logged_user"]["id"];
+            $commentId = $getParams["id"];
+            $ownerId = $_SESSION["logged_user"]["id"];
         }
-        if (empty($comment_id) || empty($owner_id)) {
+        if (empty($commentId) || empty($ownerId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        if ($owner_id != $_SESSION["logged_user"]["id"]) {
-            throw new AuthorizationException("Unauthorized user.");
-        }
-        $dao = VideoDAO::getInstance();
-        $comment = $dao->getCommentById($comment_id);
-        if (empty($comment)) {
-            throw new InvalidArgumentException("Invalid comment.");
-        }
-        $dao->deleteComment($comment_id, $owner_id);
+        $this->commentService->delete($getParams);
     }
 
+    /**
+     * @return int
+     *
+     * @throws InvalidArgumentException
+     */
     public function isReactingComment()
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams["id"])) {
-            $comment_id = $getParams["id"];
-            $user_id = $_SESSION["logged_user"]["id"];
+            $commentId = $getParams["id"];
+            $userId = $_SESSION["logged_user"]["id"];
         }
-        if (empty($user_id) || empty($comment_id)) {
+        if (empty($userId) || empty($commentId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $dao = UserDAO::getInstance();
-        return $dao->isReactingComment($user_id, $comment_id);
+
+        return $this->commentService->isReactingComment($getParams);
     }
 
+    /**
+     * @return void
+     *
+     * @throws InvalidArgumentException
+     */
     public function react()
     {
         $getParams = $this->request->getGetParams();
         if (isset($getParams["id"]) && isset($getParams["status"])) {
-            $comment_id = $getParams["id"];
+            $commentId = $getParams["id"];
             $status = $getParams["status"];
         }
-        $user_id = $_SESSION["logged_user"]["id"];
-        if (empty($comment_id) || empty($user_id)) {
+        $userId = $_SESSION["logged_user"]["id"];
+        if (empty($commentId) || empty($userId)) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
         if ($status != 0 && $status != 1) {
             throw new InvalidArgumentException("Invalid arguments.");
         }
-        $videodao = VideoDAO::getInstance();
-        $comment = $videodao->getCommentById($comment_id);
+        $commentDao = new UsersReactCommentsDAO();
+        $comment = $commentDao->getCommentById($commentId);
         if (empty($comment)) {
             throw new InvalidArgumentException("Invalid comment.");
         }
-        $isReacting = $this->isReactingComment($user_id, $comment_id);
-        $userdao = UserDAO::getInstance();
-        if ($isReacting == -1) {//if there has been no reaction
-            $userdao->reactComment($user_id, $comment_id, $status);
-        } elseif ($isReacting == $status) { //if liking liked or disliking disliked video
-            $userdao->unreactComment($user_id, $comment_id);
-        } elseif ($isReacting != $status) { //if liking disliked or disliking liked video
-            $userdao->unreactComment($user_id, $comment_id);
-            $userdao->reactComment($user_id, $comment_id, 1 - $isReacting);
-        }
-        $arr = [];
-        $arr["stat"] = $this->isReactingComment();
-        $arr["likes"] = $userdao->getCommentReactions($comment_id, 1);
-        $arr["dislikes"] = $userdao->getCommentReactions($comment_id, 0);
-        echo json_encode($arr);
+        $isReacting = $this->isReactingComment();
+        $this->commentService->react($isReacting, $getParams);
     }
 }

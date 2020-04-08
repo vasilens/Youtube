@@ -16,7 +16,6 @@ require_once "navigation.php";
         echo $video["date_uploaded"] . "<br>";
         echo "Views: " . $video['views'] . "<br>";
         echo $video["name"] . "<br>";
-        echo $video["user_id"];
         echo "<a href='/user/profile/" . $video["user_id"] . "'>" . $video["username"] . "</a><br>";
         if(isset($_SESSION['logged_user'])){
         echo "<button id='showPlaylists' onclick='showMyPlaylists(". $user_id." ,". $video_id .")'>Add to playlist</button>";
@@ -83,7 +82,7 @@ require_once "navigation.php";
                     "</span>)<img src='../styles/images/dislikeImg.png' style='height: 30px' id='dislike-comment" . $comment["id"] . "' onclick='dislikeComment(" . $comment["id"] .
                     ")'>(<span id='comment" . $comment["id"] . "-dislikes'>" . $comment["dislikes"] . "</span>)";
                 if ($comment["owner_id"] == $user_id){
-                    echo "<img style='height: 20px;margin-left: 5px;' src='styles/images/deleteIcon.png' id='delete-comment' onclick='deleteComment(" . $comment["id"] .
+                    echo "<img style='height: 20px;margin-left: 5px;' src='../styles/images/deleteIcon.png' id='delete-comment' onclick='deleteComment(" . $comment["id"] .
                         ")'></button>";
                 }
                 echo "</td></tr>";
